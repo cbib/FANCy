@@ -1,0 +1,14 @@
+papara called as:
+papara -t /usr/local/lib/python3.5/dist-packages/PICRUSt2-2.0.0b3-py3.5.egg/default_files/prokaryotic/img_centroid_16S_aligned.tree -s ref_seqs.phylip -q /home/peterbock/Desktop/picrust/pipeline/picrust2/tutorial_files/input_ASVs.fasta -j 1 -n out 
+references container instantiated as: papara::references<pvec_pgap, sequence_model::tag_dna>
+edges: 32885
+scoring scheme: -3 -1 2 -3
+papara_core version 2.5
+start scoring, using 1 threads
+31.2895% done. 2.649 gncup/s, 8.08735 tpili (short: 2.649, 8.08735)
+62.6034% done. 2.64864 gncup/s, 8.08793 tpili (short: 2.64829, 8.08852)
+93.9173% done. 2.64904 gncup/s, 8.08642 tpili (short: 2.64983, 8.0834)
+thread 0: 2.64889 gncup/s
+scoring finished: 31.9552
+generating best scoring alignments
+SUCCESS 63.0276

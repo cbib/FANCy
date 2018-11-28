@@ -1,0 +1,15 @@
+path 40 fam0 3 fam-found 3 # ARGASEDEG-PWY
+   EC:2.6.1.13 hits 9.5 # EC:2.6.1.13
+   EC:1.5.1.12 hits 21.0 # EC:1.5.1.12
+   EC:3.5.3.1 hits 27.0 # EC:3.5.3.1
+path 91 fam0 3 fam-found 2 # ARG-PRO-PWY
+   EC:3.5.3.1 hits 27.0 # EC:3.5.3.1
+   EC:2.6.1.13 hits 9.5 # EC:2.6.1.13
+path 93 fam0 2 fam-found 1 # PWY-3341
+   EC:2.6.1.13 hits 9.5 # EC:2.6.1.13
+path 1022 fam0 2 fam-found 1 # ARG-GLU-PWY
+   EC:3.5.3.1 hits 27.0 # EC:3.5.3.1
+path 1092 fam0 2 fam-found 1 # PROUT-PWY
+   EC:1.5.1.12 hits 21.0 # EC:1.5.1.12
+path 1499 fam0 2 fam-found 1 # PWY-31
+   EC:3.5.3.1 hits 27.0 # EC:3.5.3.1

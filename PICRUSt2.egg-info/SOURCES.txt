@@ -1,0 +1,7 @@
+PICRUSt2.egg-info/PKG-INFO
+PICRUSt2.egg-info/SOURCES.txt
+PICRUSt2.egg-info/dependency_links.txt
+PICRUSt2.egg-info/requires.txt
+PICRUSt2.egg-info/top_level.txt
+picrust2/__init__.py
+picrust2/setup.py

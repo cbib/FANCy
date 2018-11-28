@@ -1,0 +1,8 @@
+PICRUSt2.egg-info/
+.cache/
+*.pyc
+tests/__pycache__/
+precalculated/prokaryotic/*_counts_mean_round_var.txt
+tutorial_files/tutorial_out/
+testing_datasets/
+.pytest_cache/

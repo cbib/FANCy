@@ -1,0 +1,44 @@
+- the taxonomy type list is stored in an external file (TaxonomyList)
+this list was stored in multiple scripts and if we add a taxonomy type it's more simple when it's centralized in a file
+The test is made with a simple "grep" (see preprocess.pl)
+
+- the getoption module is now used for parameters
+
+- some if/else structure are changed to switch/case structure
+
+- the MakeMatrix.pl script compute an ensemble of matrix files
+Penalty score is computed with $tp, $fn and $fp variables. We pre-compute an hash stored in a file. This hash in used in the taxonomic assignment step. If the value is pre-computed the hash is used (see penaltyScore function in taxoAssignement.pm)
+
+- lines of match file with only 1 taxonomic id are treated with a specific function (printResultSingle). We do not need to compute a penalty score.
+
+- le contract function for Taxonmy object is not used
+
+- the parsing function of GREENGENES.pm is modified 
+
+- the --q-parameter of tango.pl accept the value "all" to compute the assgnation for every value of q (0 to 1) and store the results is separated files
+
+
+
+
+
+
+MATCH FILE FOR TEST 
+MP9r2.match
+number of taxonomic id associated to the reads : 1 to 10
+289813 read with only one taxonomic id 
+85244 with multiple taxonomic id
+
+
+
+
+
+SYNOPSIS
+
+perl preprocess.pl   --taxonomy ./GGdb --taxonomy-type greengenes --output GREEN.prep
+perl convertTaxonomy.pl --original-type greengenes --final-type greengenes --taxonomy GGdb --mapping none --output GREEN2GREEN.ser
+perl convertMatches.pl --matches MP9r2.match --mapping GREEN2GREEN.ser --output MP9r2.match.converted
+perl tango.pl --taxonomy GREEN.prep --matches MP9r2.match --q-value 0.5 --output_file FinalRes
+
+
+
+

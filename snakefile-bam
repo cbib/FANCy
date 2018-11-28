@@ -1,0 +1,38 @@
+import glob
+
+
+# include the Common steps of the pipeline
+include: "./snakefile-common"
+
+#BAMDIR = [os.path.basename(x) for x in glob.glob("bamDir/*.bam")]
+#BAMDIR ="bamdir/test.bam"
+
+# get list of filenames for the matchfiles we need to generate.
+
+fileNames = [file.split("/")[-1].split(".")[0] for file in glob.glob(DIRECTORY + "bamdir/*.bam")]
+
+
+rule all:
+  input:
+    expand(INPUT + "{files}.sam.match", files=fileNames),
+    LOG + "db_done",
+    LOG + "bam_done",
+    LOG + "tango_run_done",
+    LOG + "tango_processed",
+    LOG + "castor_done",
+    LOG + "normalize_done",
+    LOG + "minpath_done",
+    LOG + "analysis_done"
+
+
+
+
+
+rule bamProcessing:
+    input:
+          expand(DIRECTORY + "bamdir/{files}.bam", files=fileNames)
+    output:
+        expand(INPUT + "{files}.sam.match", files=fileNames),
+        LOG + "bam_done"
+    shell:
+        "python {DIRECTORY}bamProcessing.py bamdir {INPUT};touch {LOG}bam_done"

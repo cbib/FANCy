@@ -1,0 +1,115 @@
+language: cpp
+sudo: false
+dist: trusty
+branches:
+  exclude:
+  - gh-pages
+cache:
+  directories:
+  - ${TRAVIS_BUILD_DIR}/deps/cmake
+  - ${TRAVIS_BUILD_DIR}/deps/doxygen
+matrix:
+  include:
+  - compiler: clang
+    addons:
+      apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        - llvm-toolchain-trusty-5.0
+        packages:
+        - clang++-5.0
+    env:
+    - COMPILER=5.0
+    - CLI_CXX_STD=14
+  - compiler: clang
+    addons:
+      apt:
+        packages:
+        - clang-3.9
+        - clang-format-3.9
+        - clang-tidy-3.9
+    env:
+    - COMPILER=3.9
+    - CHECK_STYLE=yes
+    - CLI_CXX_STD=14
+  - compiler: clang
+    addons:
+      apt:
+        packages:
+        - clang-3.5
+    env:
+    - COMPILER=3.5
+    - DEPLOY_MAT=yes
+    - DOXYFILE=$TRAVIS_BUILD_DIR/docs/Doxyfile
+  - compiler: gcc
+    addons:
+      apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        packages:
+        - g++-6
+        - curl
+        - lcov
+    env:
+    - COMPILER=6
+    - COVERALLS=yes
+    - CLI_CXX_STD=14
+  - compiler: gcc
+    addons:
+      apt:
+        packages:
+        - g++-4.7
+    env:
+    - COMPILER=4.7
+  - os: osx
+    before_install:
+    - python -m ensurepip --user
+install:
+- python -c 'import sys; print(sys.version_info[:])'
+- DEPS_DIR="${TRAVIS_BUILD_DIR}/deps"
+- if [ "$TRAVIS_OS_NAME" = "linux" ]; then cd $TRAVIS_BUILD_DIR && . .ci/prepare_altern.sh ; fi
+- if [ "$TRAVIS_OS_NAME" = "linux" ] ; then cd $TRAVIS_BUILD_DIR && . .ci/build_cmake.sh ; fi
+- if [ "$TRAVIS_OS_NAME" = "linux" ] ; then cd $TRAVIS_BUILD_DIR && . .ci/build_doxygen.sh ; fi
+- if [ -n "$COVERALLS" ] ; then cd $TRAVIS_BUILD_DIR && . .ci/build_lcov.sh ; fi
+- cd "${DEPS_DIR}"
+- if [ "$(python -c 'import sys; print(sys.version_info[0])')" = "2" ] ; then python -m pip install --user pathlib ; fi
+- cmake --version
+script:
+- cd "${TRAVIS_BUILD_DIR}"
+- |
+  if [ -n "$CHECK_STYLE" ]
+  then
+    scripts/check_style.sh
+    .ci/check_tidy.sh
+  else
+    .ci/travis.sh
+  fi
+after_success:
+- if [ -n "$COVERALLS" ] ; then cd $TRAVIS_BUILD_DIR && .ci/run_codecov.sh ; fi
+- echo "${TRAVIS_BRANCH}"
+- echo "${TRAVIS_PULL_REQUEST}"
+- |
+  if [ "${TRAVIS_BRANCH}" == "master" ] && [ "${TRAVIS_PULL_REQUEST}" == "false" ] && [ -n "$DEPLOY_MAT" ]
+  then
+    echo "Updating docs" && cd $TRAVIS_BUILD_DIR && .ci/build_docs.sh
+  fi
+deploy:
+  provider: releases
+  api_key:
+    secure: L1svZ5J+RiR67dj1fNk/XiZRvYfGJC4c5/dKSvDH+yuKSzZ6ODaTiVmYF8NtMJ7/3AQenEa0OuRBVQ0YpngFz3ugIcRsGCDUHtCMK/Bti0+6ZFdICbqcv6W3BlRIM8s7EOBPhjfbCV+ae7xep9B24HmwBPKukMFjDIj4nwBsmwCHZK9iNFtfaW2J2cr2TJo7QPY01J0W1k/boaj91KzHf9UuhEH8KYqp7szv+6kV00W8bRBtugw419dIm25eXFXgXDT9s/OA7qXV7o5FXWWpkyJ5AINVbY9DerkYag5TStrdOyKk+S1FexRG6TMG4L4Jyu/QxQGhMdu0m1yRCLvIekGtWLDnjNrI2SZrd5HbKprQ0O8j1770Is4q5blVPqAZ6O9jVMJRtVEaYbsJwItz1BJWkPT4S9GFbDL1dq2Z5jR2f5gd/cz2yYH56b47iYHWtzSqEfVhsXiN+atD+tWyQFA4Q/av0bGHwJ6LX0A1q0OCHruUMoxcw1QKfYtV1bkf/folL4Z4Hx3CL+NB0Lkqs8LFsQHxODP4a26I5DS/kaDHofotho8wsWlKFDtonZa+CExORGFFMPnGRz2qX5tMgGoo84wcqrprfoQv2llqeUr3gISPl2qxrljAhj3/Dcl7iI7k0Er7Ji8ENpgjSec4aqnBx8Ke2yaDEmBvwbouFCM=
+  skip_cleanup: true
+  file: build/include/CLI11.hpp
+  on:
+    repo: CLIUtils/CLI11
+    tags: true
+    condition: $DEPLOY_MAT = yes
+notifications:
+  webhooks:
+    urls:
+    - https://webhooks.gitter.im/e/bbdb3befce4c00448d24
+    on_success: change
+    on_failure: always
+    on_start: never
+env:
+  global:
+    secure: cY0OI609iTAxLRYuYQnNMi+H6n0dBwioTAoFXGGRTnngw2V9om3UmY5eUu4HQEQsQZovHdYpNhlSgRmdwQ4UqSp3FGyrwobf0kzacV4bVnMDeXDmHt8RzE5wP/LwDd8elNF6RRYjElY99f0k0FyXVd0fIvuVkGKQECNLOtEk0jQo+4YTh7dhuCxRhBYgTbNiRL6UJynfrcK0YN+DQ+8CJNupu2VxgaEpCSngTfvDHLcddcrXwpvn3MPc3FsDUbtN389ZCIe41qqIL0ATv46DQaTw4FOevyVfRyrBOznONoGCVeAYKL6VBdrk01Fh6aytF5zgI3hKaKobgEn+QFfzR6l68c6APvqA0Qv39iLjuh6KbdIV2YsqXfyt6FBgqP2xZuNEZW1jZ8LxUOLl2I40UEh87nFutvnSbfIzN+FcLrajm2H2jV2kZGNKAMx+4qxkZuXSre4JPkENfJm2WNFAKlqPt4ZSEQarkDYzZPcEr2I9fbGjQYVJICoN4LikCv9K5z7ujpTxCTNbVpQWZcEOT6QQBc6Vml/N/NKAIl9o2OeTLiXCmT31+KQMeO492KYNQ6VmkeqrVhGExOUcJdNyDJV9C+3mSekb3Sq78SneYRKDechkWbMl0ol07wGTdBwQQwgaorjRyn07x1rDxpPr3z19/+eubnpPUW4UQ5MYsjs=

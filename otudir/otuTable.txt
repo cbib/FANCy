@@ -1,0 +1,4 @@
+otu	sample1	sample2
+A	1	2
+B	2	4
+C	4	5

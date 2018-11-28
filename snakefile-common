@@ -1,0 +1,113 @@
+import glob
+from os import path
+
+# Common steps of the Snakemake pipeline
+
+
+# Get Variables and addpend /; in case the user gave the path as "path/to/dir"
+# instead of "/path/to/dir/". if it zqs pqth/to/dir remove the double "//"
+DIRECTORY = config["cur_dir"] + "/"
+DIRECTORY = DIRECTORY.replace("//","/")
+
+
+OUTPUT = config["output"]+ "/"
+OUTPUT = OUTPUT.replace("//","/")
+
+INPUT = config["matchfiles"]+ "/"
+INPUT = INPUT.replace("//","/")
+
+LOG = config["log"]+ "/"
+LOG = LOG.replace("//","/")
+
+OPTION = config["option"]
+
+METADATA_LOC = config["metadata"]
+
+PVAL = int(config["pval"])
+
+SQLITE_DB = config["ncbiDB"]
+
+# extract the filenames from the path and file extensions. (path by "/, extensions by ".")
+
+fileNames = [".".join(file.split("/")[-1].split(".")[0:-2]) for file in glob.glob(INPUT + "*.sam.match")]
+
+
+rule check_ncbi_taxa:
+  output:
+    LOG + "db_done"
+  shell:
+    "python {DIRECTORY}check_db_age.py {DIRECTORY} {SQLITE_DB};touch {LOG}db_done"
+
+
+rule run_tango:
+  input:
+    LOG + "db_done",
+    expand(INPUT + "{files}.sam.match", files=fileNames)
+  output:
+    LOG + "tango_run_done",
+    expand(OUTPUT + "tango/{files}.sam.match_0.5", files=fileNames)
+  shell:
+    "python {DIRECTORY}run_tango.py {DIRECTORY} {INPUT} {OUTPUT};touch {LOG}tango_run_done"
+
+rule process_tango:
+  input:
+    LOG + "tango_run_done"
+  output:
+    DIRECTORY + "data/tmp/matchtree.txt",
+    LOG + "nodes.txt",
+    LOG + "species.txt",
+    LOG + "weights_by_sample.tsv",
+    LOG + "tango_processed",
+    OUTPUT + "tps.pickle"
+  shell:
+    "python {DIRECTORY}process_tango.py {DIRECTORY} {LOG} {OUTPUT} {SQLITE_DB};touch {LOG}tango_processed"
+
+
+rule predict_castor:
+  input:
+    DIRECTORY + "data/tmp/matchtree.txt"
+  output:
+    OUTPUT + "hsp.tsv",
+    LOG + "castor_done",
+    OUTPUT + "ko_merged.pickle",
+    DIRECTORY + "data/tmp/komat.tab"
+  shell:
+    "python {DIRECTORY}castor_predict.py {DIRECTORY} {OUTPUT} {LOG};touch {LOG}castor_done"
+
+
+rule normalize:
+  input:
+    OUTPUT + "hsp.tsv",
+    LOG +"castor_done",
+    LOG +"tango_processed",
+    OUTPUT + "ko_merged.pickle",
+    OUTPUT + "tps.pickle"
+  output:
+    OUTPUT + "KO_by_sample_normalized.tsv",
+    LOG + "normalize_done"
+  shell:
+    "python {DIRECTORY}seqNorm.py {OUTPUT} {OPTION};python {DIRECTORY}normalize.py {DIRECTORY} {OUTPUT} {LOG};touch {LOG}normalize_done"
+
+rule minpathHMP:
+  input:
+    OUTPUT + 'KO_by_sample_normalized.tsv',
+    LOG + "castor_done",
+    LOG + "tango_processed",
+    LOG + "normalize_done"
+  output:
+    OUTPUT + "pathwayAbundances.csv",
+    LOG  + "minpath_done"
+  shell:
+    "python {DIRECTORY}run_minpathHMP.py {DIRECTORY} {OUTPUT};touch {LOG}minpath_done"
+
+rule Ranalysis:
+  input:
+    LOG + "castor_done",
+    LOG + "tango_processed",
+    LOG + "normalize_done",
+    LOG + "minpath_done"
+  output:
+    OUTPUT + "PCAind.png",
+    LOG + "analysis_done"
+  shell:
+    "Rscript {DIRECTORY}Rstatanalysis.R {OUTPUT}pathwayAbundances.csv {METADATA_LOC} {OUTPUT} {PVAL};touch {LOG}analysis_done"

@@ -1,0 +1,7 @@
+path 00010 fam0 56 fam-found 1 # Glycolysis / Gluconeogenesis
+   K00844 hits 1.0 # HK
+path 00190 fam0 200 fam-found 4 # Oxidative phosphorylation
+   K02256 hits 6.1 # COX1
+   K02274 hits 1.0 # COXA
+   K03878 hits 3.0 # ND1
+   K03880 hits 3.0 # ND3

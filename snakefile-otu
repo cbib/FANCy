@@ -1,0 +1,32 @@
+import glob
+
+# include the Common steps of the pipeline
+include: "./snakefile-common"
+
+
+otuSeq = [file for file in glob.glob(DIRECTORY + "otudir/*.fasta")]
+otuTable = [file for file in glob.glob(DIRECTORY + "otudir/*.txt")]
+
+
+
+rule all:
+  input:
+    LOG + "db_done",
+    LOG + "otu_done",
+    LOG + "tango_run_done",
+    LOG + "tango_processed",
+    LOG + "castor_done",
+    LOG + "normalize_done",
+    LOG + "minpath_done",
+    LOG + "analysis_done"
+    #outfile = config["output_dir"] + "pathwayAbundances.csv"
+
+rule otuProcessing:
+    input:
+        otuSeq,
+        otuTable
+    output:
+        LOG + "otu_done",
+        DIRECTORY + "otudir/otuSeqs.fasta.sam"
+    shell:
+        "python otuProcessing.py {input[0]} {input[1]} {INPUT};touch {LOG}otu_done"

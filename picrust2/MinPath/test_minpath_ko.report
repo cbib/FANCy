@@ -1,0 +1,8 @@
+path 00010 kegg n/a  naive 1  minpath 1  fam0  56  fam-found  1  name  Glycolysis / Gluconeogenesis
+path 00051 kegg n/a  naive 1  minpath 0  fam0  50  fam-found  1  name  Fructose and mannose metabolism
+path 00052 kegg n/a  naive 1  minpath 0  fam0  38  fam-found  1  name  Galactose metabolism
+path 00190 kegg n/a  naive 1  minpath 1  fam0  200  fam-found  4  name  Oxidative phosphorylation
+path 00500 kegg n/a  naive 1  minpath 0  fam0  67  fam-found  1  name  Starch and sucrose metabolism
+path 00521 kegg n/a  naive 1  minpath 0  fam0  14  fam-found  1  name  Streptomycin biosynthesis
+path 00530 kegg n/a  naive 1  minpath 0  fam0  38  fam-found  1  name  Aminosugars metabolism
+path 05012 kegg n/a  naive 1  minpath 0  fam0  109  fam-found  3  name  Parkinson's disease

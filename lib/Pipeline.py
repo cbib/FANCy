@@ -1,0 +1,283 @@
+from helpers import *
+from minpath_functions import *
+from subprocess import check_output
+from glob import glob
+from ete2 import NCBITaxa
+from datetime import datetime,timedelta
+from os import path,makedirs
+
+
+def sep(val):
+    if val:
+        print('\n################################################################################\n')
+
+def log(logfile,m):
+    if logfile is None:
+        print(m)
+    else:
+        logfile.write(m + '\n')
+
+
+# Check age of local NCBITaxa DB, update if older than a month.
+def check_taxa_db_age(dbLocation):
+    # if file doesn't exist, catch the error and run the update, as it will create the file.
+    ncbi = NCBITaxa()
+
+    try:
+        filetime = datetime.fromtimestamp(path.getctime(dbLocation))
+        one_month_ago = datetime.now() - timedelta(days=30)
+        if filetime < one_month_ago:
+            # File older than 1 month, update it:
+            logInfo = '<> NCBITaxa Database older than 1 month, updating it <>'
+            ncbi.update_taxonomy_database()
+        else:
+            logInfo = '<> NCBITaxa Database up to date <>'
+    except:
+        logInfo = "<> NCBITaxa Database didn't exist, downloaded it <>"
+        ncbi.update_taxonomy_database()
+
+    return(logInfo)
+
+# Parses program arguments
+def parse_args(args,default_vals):
+    c = len(args)
+    if c > 1:
+        default_vals[0] = args[1]
+        if c > 2:
+            default_vals[1] = args[2]
+            if c > 3:
+                default_vals[2] = args[3]
+                if c > 4:
+                    default_vals[3] = (args[4] == '1')
+    return default_vals
+
+# Runs tango on match data
+def run_tango(this_path,matchfiles_dir,output_dir):
+
+    # check if tango dir exists in output directory, if not create it:
+    if not path.isdir(this_path + '/' + output_dir + '/tango'):
+        makedirs(this_path + '/' + output_dir + '/tango')
+
+    for matchfile in glob(matchfiles_dir + '/*'):
+
+        # addition of split to avoid storing the matchfiles_dir in matchfile object
+        # if matchfile is 'matchfiles_dir.../X.match', keep only name of matchfile after last/:
+        if "/" in matchfile:
+            matchfile = matchfile.split('/')[-1]
+
+        print '--- Running tango on {} ---'.format(matchfile)
+        # Added path to the Tango libs using -I
+        check_output(['perl',
+            '-I', this_path + '/tango',
+            this_path + '/tango/tango.pl',
+            '--q-value', '0.5',
+            '--taxonomy', this_path + 'data/UNITE.prep',
+            '--matches', this_path + '/' + matchfiles_dir + '/' + matchfile,
+            '--output', this_path + '/' + output_dir + '/tango/' + matchfile])
+
+# Parses tango results from output folder only for allowed taxonomic groups
+# ids : Taxonomic id set of taxa found
+# sps : Taxonomic id set of species found
+# rpr : Dictionary counting how much a taxonomic id appears in this sample
+# tps : Taxons Per Sample -> Dict containing the rpr dicts for each sample
+# err : Errors
+def parse_tango_results(ncbi,output_dir,allowed = ['c','g','f','k','o','p']):
+    ids, sps, rpr, tps, err = (set(), set(), dict(), dict(), [])
+    for sample in glob(output_dir + '/tango/*'):
+        print '--- Loading {} ---'.format(sample)
+        for (tax_group, tax_id) in explore_tango_file(ncbi,sample,allowed):
+            if tax_id != -1:
+                ids.add(tax_id)
+                count_dict(rpr,tax_id)
+                if tax_group == 's': # Species
+                    sps.add(tax_id)
+            else:
+                err.append((tax_group,tax_id))
+        if "/" in sample:
+            sample = sample.split("/")[-1]
+        tps[sample] = rpr
+        # empty rpr so that it can be filled anew with the next samples taxon id count.
+        rpr = dict()
+
+    return (ids,sps,tps,err)
+
+def build_tree(ncbi,ids):
+    nodes = set(ids) # Set of all nodes of a tree containing all the taxons found from the root rank
+    for id in ids:
+        nodes.update(ncbi.get_lineage(id)) # Adding the direct lineage of each node to the node list
+    tree = ncbi.get_topology(nodes) # ncbi api creates a taxonomic tree from all the nodes
+    tree.write(format=1,outfile='data/tmp/matchtree.txt') # writing tree
+    return nodes
+
+
+def log_taxa(log_dir,this_path,sps,nodes,tps):
+    if not path.isdir(this_path + '/' + log_dir):
+        makedirs(this_path + '/' + log_dir)
+    write_list(log_dir + '/species.txt',sps)
+    write_list(log_dir + '/nodes.txt',nodes)
+    # makes no sense logging this, as it's a multi-dimensional matric (3xn)
+    write_doubledict(log_dir + '/weights_by_sample.tsv',tps)
+
+def build_ko_matrix(nodes):
+    mat = {}
+    for kofilename in glob('data/ko/*.tab'): # Searching in tab separated ko matrices
+        parse_komat_file(kofilename,mat,nodes) # Parsing each file
+    kos = write_komat('data/tmp/komat.tab',mat) # Writing matrix
+    return (mat,kos)
+
+def run_castor(this_path,output_dir):
+    # Runs castor
+    check_output(['python3',
+        this_path + 'picrust2/scripts/hsp.py', # Picrust2 hsp.py script
+        '-t', this_path + 'data/tmp/matchtree.txt', # Taxonomic tree
+        '-o', this_path + output_dir + '/hsp', # Output file      replaced "+ '/' +"  with "+"
+        '--observed_trait_table', this_path + 'data/tmp/komat.tab']) # KO matrix
+    # Interpret castor
+    f = open(output_dir + '/hsp.tsv')
+    # Parsing header
+    header = f.next().split('\t') # Array containing indexed ko names
+    values = [data.split('\t') for data in f] # Array of arrays containing ko predictions for a species
+    return (header,values)
+
+def merge_ko_matrix_with_predictions(mat,values,header):
+    for pred in values: # Parcouring predictions
+        tax_id = pred[0]
+        for ko_pred_it in range(1,len(pred)): # Parcouring kos
+            merge_with_dict(mat,int(tax_id),header[ko_pred_it],int(pred[ko_pred_it]))
+
+
+# Divide Sample numbers for each species by that species ITS copynumber, as a normalization step:
+## is done for each species in each sample.
+## if a species in the matrice does not have a correspondence in the ITS matrice, it is assumed to be 1
+
+def normalize_matrice_by_ITS(tps_mat,its_mat):
+    matCopy = tps_mat
+
+    for sample in matCopy:
+        for taxonid in matCopy[sample]:
+            # divide the species abundance by the ITS copynumber
+            # given the ITS copynumber represents the number of ITS for that species/taxonid, and that normally
+            # that number corresponds to a duplication ratio of sorts that must be corrected.
+            if taxonid in its_mat.keys():
+                matCopy[sample][taxonid] /= its_mat[taxonid]
+            else:
+                print("\nITS_mat does not contain this species/taxonid, its ITS copynumber value assumed to be 1\n")
+    return matCopy
+
+
+# Generate Ko / sample matrice
+# by multiplying and summing taxonId / Sample (tps) and Ko / Taxonid (mat) matrices.
+# Logic:
+# for every ko, multiply it's abundance across all species present in a sample, to get the total number of that ko in that specific sample
+
+def koSample_mat(tps,ko_mat):
+    # First, generate the empty matrix with the KO's present in each sample.
+    # An empty set to gather the unique ko's present in each sample
+    koset = set()
+    # matrix to hold the kos per sample information.
+    sample_kos = dict()
+
+    for sample in tps:
+        for taxon in tps[sample]:
+            if taxon in ko_mat:
+                # for each taxon in the sample, find it's associated KO's in the KO/taxon matrice.
+                koset |= set(ko_mat[taxon].keys())
+            else:
+                print(taxon)
+        sample_kos[sample] = {key : 0 for key in list(koset)}
+        koset = set()
+
+    # now, fill the empty matrix by summing the kos present in the different samples using the tps and mat matrices.
+
+    # initialize the total KO value at 0
+    koval = 0
+
+
+    missingTaxons = set()
+    # for each sample in the KOSample matrix we just created
+    for sample in sample_kos:
+
+        for ko in sample_kos[sample]:
+
+            # for all the taxonids present in that sample
+            for taxonid in tps[sample]:
+                # if a KO from the KO/sample matrix is present in the KO/taxon matrix
+                try:
+                    if ko in ko_mat[taxonid]:
+                        # get the normalized value from Taxon/sample
+                        tpsNorm = tps[sample][taxonid]
+                        # get the non-normalized value from KO/Taxon
+                        matVal = ko_mat[taxonid][ko]
+                        # multiply the KO's abundance value in the taxon by the abundance of that taxon in the sample
+                        # add it to the sum of that KOs values, for all taxonids in that sample
+                        koval += tpsNorm * matVal
+                except:
+                    missingTaxons.add(taxonid)
+            # add the total sum of that KO's products for that sample to the kos/sample matrix
+            sample_kos[sample][ko] = koval
+            # reset koval to 0 for the next KO's sum to be calculated.
+            koval = 0
+            # the missingTaxons identifies the taxons present in tps but not in the Castor predictions(mat). if there are too
+            # many it might be problematic.
+    return(sample_kos)
+
+
+# Generate the directory structure then launch MinPathHMP on the KO/Sample matrice.
+# When that is done, return the output to the calling function/program/script
+
+def minPathHMP(inputfile,outputDir,currentdir):
+    minpathDir = outputDir + "/minpath_results"
+
+    if not os.path.exists(minpathDir):
+        makedirs(minpathDir)
+
+
+    results = run_minpath_pipeline(inputfile,
+                                   currentdir,
+                                   proc=1,
+                                   out_dir=minpathDir,
+                                   print_cmds=False)
+
+    return(results)
+
+
+# Quality Control the raw FastQ data before mapping
+# Works for Illumina datasets
+
+## if needed in the future, replace QCToolkit with fastQ Screen
+
+def readQC(fastqFolderPath,qcToolkitPath,outputPath):
+    if not os.path.exists(outputPath):
+        makedirs(outputPath)
+
+    for filePath in glob(fastqFolderPath + '*.fastq.gz'):
+        print(qcToolkitPath)
+        check_output(['perl',
+                      qcToolkitPath, # Illumina QC tool
+                      '-se', filePath, "N A",
+                      '-o', outputPath])
+
+
+# BWA mapping of cleaned fastQ input data
+
+def bwaMap(filteredFolderPath,dbPath):
+    check_output(["cp", dbPath, filteredFolderPath])
+    # Index DB first. DB is named UNITEid and placed in the same folder as the MakeBWAmem.pl script
+    check_output(['bwa', 'index', filteredFolderPath + "UNITEid"])
+
+    # Map filtered fastQ files
+
+    check_output(['perl', 'MakeBWAmem.pl', filteredFolderPath])
+
+
+# Use MakeMatch.pl script to create matchfiles using the cleaned and mapped SAM files
+
+def matchMaker(sam_dir, match_dir, scriptPath):
+    # move copy of perl script into the dir containing the sam directories
+    check_output(["cp", scriptPath, sam_dir])
+
+    # execute MakeMatch.pl
+    check_output(["perl", sam_dir + "/MakeMatch.pl"])
+
+    # move match files to matchDir
+    check_output(["mv", sam_dir + "/*.match", match_dir])

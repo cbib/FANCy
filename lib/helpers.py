@@ -1,0 +1,133 @@
+# Some helper functions
+
+# Used to count occurences of taxa in samples
+def count_dict(d,k,v = 1):
+    if k in d:
+        d[k] += int(v)
+    else:
+        d[k] = int(v)
+
+# used to represent values in a dictionary containing a dictionary containing integers
+# In practice : mat[species][ko] = x
+def merge_with_dict(d,k,v,c):
+    if c == 0: # not filling matrix with useless ko information
+        return
+    if k in d:
+        if v in d[k]:
+            if d[k][v] != c:
+                if d[k][v] == 0:
+                    d[k][v] = c
+                elif c != 0:
+                    print '!!! Data conflict for {} ({} vs {}) [in {}]'.format(v,str(d[k][v]),str(c),str(k)) # @TODO better log
+        else:
+            d[k][v] = c
+    else:
+        d[k] = {v:c}
+
+# Parses a tango file line by line
+def explore_tango_file(ncbi,filename,allowed):
+    with open(filename,'r') as file:
+        for line in file:
+            data = line.split('\t')
+            if len(data) == 3: # Data has 3 tab separated parts (read id    score   taxon)
+                if data[2][0] == 's': # Species
+                    name = ' '.join(data[2].split('_')[1:]).strip('\n') # finds name of taxon
+                    id = int(ncbi.get_name_translator([name]).get(name,[-1])[0]) # finds id from name (this api is weird)
+                    yield ('s',id) if id != -1 else ('s',-1)
+                elif data[2][0] in allowed: # Taxonomic group
+                    name = data[2].split('_')[1].split(' ')[0]
+                    id = int(ncbi.get_name_translator([name]).get(name,[-1])[0])
+                    yield (data[2][0],id) if id != -1 else (data[2][0],-1)
+
+# Parses a tab separated ko matrix file following a species whitelist
+def parse_komat_file(kofilename,mat,whitelist):
+    with open(kofilename) as kofile:
+        header = kofile.next().split('\t') # Parsing header column
+        for line in kofile:
+            data = line.split('\t') # Parsing ko values for a line
+            sps = int(data[0])
+            if sps in whitelist: # If species is in whitelist
+                for i in range(1,len(data)): # Adding all ko values of said species
+                    v = int(data[i])
+                    merge_with_dict(mat,sps,header[i],v) # Adding ko value
+
+# Writes a list into a file
+def write_list(filename,lst):
+    with open(filename,'w+') as f:
+        f.write('\n'.join([str(element) for element in lst]))
+
+# Writes a double dictionary to file
+def write_doubledict(filename,dc,sp = '\t'):
+    with open(filename,'w+') as f:
+        header = ["function"]
+        seqIDS = set()
+        for k in dc:
+            header.append(k)
+            # get all second_dict keys and add them to a single set
+            for k2 in dc[k]:
+                seqIDS.add(k2)
+        # write header to file
+        f.write(str(sp.join(header)) + "\n")
+        for k2 in seqIDS:
+            line = [k2]
+            for k in dc:
+                try:
+                    line.append(dc[k][k2])
+                except:
+                    line.append(0)
+            f.write(sp.join(map(str,line)) + "\n")
+
+
+
+# Writes a dictionary
+def write_dict(filename,dc,sp = '\t'):
+    with open(filename,'w+') as f:
+        for k in dc:
+            f.write(str(k) + sp + str(dc[k]) + '\n')
+# Writes a ko matrix in tab separated file
+# index_name default value is castor's accepted value
+def write_komat(filename,komat,index_name = 'assembly'):
+    komatfile = open(filename,'w+') # Temporary ko matrix of all relevant kos
+    # Kos are the columns and species are the lines
+    kos = set() # Unique kos
+    for sps in komat:
+        kos.update(komat[sps].keys())
+    # Writing header from kos set
+    komatfile.write(index_name + '\t{}\n'.format('\t'.join([ko.strip('\n') for ko in kos]))) # Writing matrix header
+    # Writing line by line
+    for tid in komat: # Writing kos per species
+        line = str(tid)
+        for ko in kos:
+            if ko in komat[tid]:
+                line += '\t' + str(komat[tid][ko])
+            else:
+                line += '\t' + '0'
+        komatfile.write(line+'\n')
+    komatfile.close()
+    return kos
+
+# create species/taxnode per ITS_copyNumber table
+# initializethe matrix with [taxonid,1] if no values are given.
+def its_table(taxonids,values={}):
+    # if values is empty, fill our 2 x n matrix with 1's
+    # 2 being the ITs and species columns, n being the total number of species.
+    speciesIDs = taxonids # species list
+    copynumberITS = {} # dict for species : ITS# correspondence
+    if values == {}:
+        for species in speciesIDs:
+            copynumberITS[species] = 1
+    else:
+        # if the values is full, it contains ITS copynumbers
+        for species in speciesIDs:
+            copynumberITS[species] = values[species]
+    return copynumberITS
+
+# Computes total kos in a ko matrix
+# Weights is a dict containing species and their representation in the sample
+def get_total_kos(mat,weights = {}):
+    tots = {}
+    for species in mat:
+        for ko in mat[species]:
+            w = weights.get(species,1)
+            count_dict(tots,ko,mat[species][ko]*w)
+    return tots

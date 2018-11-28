@@ -1,0 +1,12 @@
+Metadata-Version: 1.0
+Name: PICRUSt2
+Version: 2.0.0b3
+Summary: PICRUSt: Phylogenetic Investigation of Communities by Reconstruction of Unobserved States
+Home-page: https://github.com/picrust/picrust2/wiki
+Author: Gavin Douglas
+Author-email: UNKNOWN
+License: UNKNOWN
+Description: Please visit the google group here if you have questions: https://groups.google.com/forum/#!forum/picrust-users. Citation: Phylogenetic Investigation of Communities by Reconstruction of Unobserved States
+        
+        Predictive functional profiling of microbial communities using 16S rRNA marker gene sequences. Langille, M. G.I.*; Zaneveld, J.*; Caporaso, J. G.; McDonald, D.; Knights, D.; a Reyes, J.; Clemente, J. C.; Burkepile, D. E.; Vega Thurber, R. L.; Knight, R.; Beiko, R. G.; and Huttenhower, C. Nature Biotechnology, 1-10. 8 2013.
+Platform: UNKNOWN
