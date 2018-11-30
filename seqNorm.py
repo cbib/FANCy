@@ -37,6 +37,8 @@ def tss(dico):
         if dico[key] != 0:
             dico[key] = dico[key] / float(ts)
     return(dico)
+
+
 def uqs(dico):
     # apply Upper Quartile Scaling to a dataset
     uq = upperQuartile(dico.values())
