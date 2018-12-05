@@ -1,4 +1,4 @@
 otu	sample1	sample2
-A	1	2
-B	2	4
-C	4	5
+otu1	1	2
+otu2	2	4
+otu3	4	5
