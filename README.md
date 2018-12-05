@@ -142,7 +142,7 @@ Rscript scripts/install_castor.r
 pip2 install ete2
 
 ```
-9. instal Picrust2
+9. install Picrust2
 
 This step has an added complexity, as Picrust 2 is still in beta and has a few bugs in their installation script to take care of.
 
