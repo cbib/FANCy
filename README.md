@@ -1,5 +1,10 @@
 # FANCy: Functional Analysis of fuNgal Communities
 
+## WAVES branch
+
+This branch has a modified version of the pipeline designed to work with the LIRMM lab's WAVES web interface for bioniformatics commandline utilities project.
+
+
 ## Introduction
 
 by: Katarzyna B. Hooks, Peter Bock, Laurence Delhaes, David Fitzpatrick, Macha Nikolski, Marin Fierens
