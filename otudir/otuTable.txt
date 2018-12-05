@@ -2,3 +2,6 @@ otu	sample1	sample2
 otu1	1	2
 otu2	2	4
 otu3	4	5
+otu4	0	1
+otu5	9	0
+otu6	8	5
