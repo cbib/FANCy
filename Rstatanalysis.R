@@ -38,7 +38,6 @@ getMetadataVector = function(metadataFile){
   # read in the metadata, containing the conditions for each run we wanr to filter by
   metadata = read.csv(metadataFile,header = TRUE, sep = ",")
 
-
   # here's the dataframe variant of the condition table. as we want it.
   # The treeStates char vector is the one we get as input, the colnames being extracted as usual from the results of the pipeline.
   seqDesign = data.frame(row.names = metadata[,1], condition = metadata[,2])
@@ -47,41 +46,20 @@ getMetadataVector = function(metadataFile){
 
 }
 
-pvalCalculator = function(dataset, groupingVector, outputDir){
+pvalCalculator = function(dataset, groupingVector, outputDir,grp1,grp2){
   # This function initializes the dataset,
   # then calculates the p-values for a wilcoxon test between 2 elements of the users choice from the grouping vector
   pvals <- matrix(ncol=4, nrow = nrow(dataset))
   colnames(pvals) = c("Pathway","pval","fdr","logFC")
 
-  el1 = ""
-  el2 = ""
-
-  # if more than 2 different categories exist in the grouping vector, ask the user to define which ones to compare from a displayed list:
-  if(nlevels(groupingVector[,1]) < 2){
-    stop("ERROR: not enough grouping variables. Please provide at least 2")
-  } else if(nlevels(groupingVector[,1]) > 2){
-      print("More than 2 categorical variables, please specify which of these you want to compare:")
-      print(levels(groupingVector[,1]))
-
-
-      while( el1 == "" && el2 == ""){
-        print("enter full name of variable 1 (as written in the above list): ")
-        el1 = readLines(file("stdin"),1)
-        print("enter full name of variable 2 (as written in the above list): ")
-        el2 = readLines(file("stdin"),1)
-
-        el1 = ifelse(as.character(el1) %in% levels(groupingVector[,1]), as.character(el1), "" )
-        el2 = ifelse(as.character(el2) %in% levels(groupingVector[,1]), as.character(el2), "" )
-
-      }
-  } else {
-    el1 = levels(groupingVector[,1])[1]
-    el2 = levels(groupingVector[,1])[2]
-  }
-
-
+  el1 = grp1
+  el2 = grp2
+  print(grp1)
+  print(grp2)
   for(i in 1:nrow(dataset)){
-
+    print(colnames(dataset))
+    print(rownames(groupingVector)[(groupingVector == el1)])
+    print(rownames(groupingVector)[(groupingVector == el2)])
     A = sapply(dataset[i,rownames(groupingVector)[(groupingVector == el1)]], as.numeric)
     B = sapply(dataset[i,rownames(groupingVector)[(groupingVector == el2)]], as.numeric)
     test = wilcox.test(A,B)
@@ -173,12 +151,14 @@ dataset = args[[1]]
 metadata = args[[2]]
 outputDir = args[[3]]
 pval = args[[4]]
+grp1 = args[[5]]
+grp2 = args[[6]]
 
 path_abun = loadData(dataset)
 
 seqDesign = getMetadataVector(metadata)
 
-pvalsList = pvalCalculator(path_abun,seqDesign, outputDir)
+pvalsList = pvalCalculator(path_abun,seqDesign, outputDir,grp1,grp2)
 pvals = pvalsList$pvals
 el1 = pvalsList$el1
 el2 = pvalsList$el2

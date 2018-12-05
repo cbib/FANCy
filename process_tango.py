@@ -60,6 +60,8 @@ def build_tree(ncbi,ids):
     for id in ids:
         nodes.update(ncbi.get_lineage(id)) # Adding the direct lineage of each node to the node list
     tree = ncbi.get_topology(nodes) # ncbi api creates a taxonomic tree from all the nodes
+    if not path.isdir("data/tmp"):
+        makedirs("data/tmp")
     tree.write(format=1,outfile='data/tmp/matchtree.txt') # writing tree
     return nodes
 

@@ -9,7 +9,7 @@ include: "./snakefile-common"
 
 # get list of filenames for the matchfiles we need to generate.
 
-fileNames = [file.split("/")[-1].split(".")[0] for file in glob.glob(DIRECTORY + "bamdir/*.bam")]
+fileNames = [".".join(file.split("/")[-1].split(".")[0:-1]) for file in glob.glob("bamdir/*.bam")]
 
 
 rule all:
@@ -30,7 +30,7 @@ rule all:
 
 rule bamProcessing:
     input:
-          expand(DIRECTORY + "bamdir/{files}.bam", files=fileNames)
+        expand("bamdir/{files}.bam", files=fileNames)
     output:
         expand(INPUT + "{files}.sam.match", files=fileNames),
         LOG + "bam_done"

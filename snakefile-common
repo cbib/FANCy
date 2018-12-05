@@ -27,6 +27,15 @@ PVAL = int(config["pval"])
 
 SQLITE_DB = config["ncbiDB"]
 
+UNITE_DB = config["uniteDB"]
+
+TANGO = config["tango"]
+
+GRP1 = config["GRP1"]
+
+GRP2 = config ["GRP2"]
+
+
 # extract the filenames from the path and file extensions. (path by "/, extensions by ".")
 
 fileNames = [".".join(file.split("/")[-1].split(".")[0:-2]) for file in glob.glob(INPUT + "*.sam.match")]
@@ -47,13 +56,13 @@ rule run_tango:
     LOG + "tango_run_done",
     expand(OUTPUT + "tango/{files}.sam.match_0.5", files=fileNames)
   shell:
-    "python {DIRECTORY}run_tango.py {DIRECTORY} {INPUT} {OUTPUT};touch {LOG}tango_run_done"
+    "python {DIRECTORY}run_tango.py {DIRECTORY} {INPUT} {OUTPUT} {TANGO};touch {LOG}tango_run_done"
 
 rule process_tango:
   input:
     LOG + "tango_run_done"
   output:
-    DIRECTORY + "data/tmp/matchtree.txt",
+    "data/tmp/matchtree.txt",
     LOG + "nodes.txt",
     LOG + "species.txt",
     LOG + "weights_by_sample.tsv",
@@ -65,12 +74,12 @@ rule process_tango:
 
 rule predict_castor:
   input:
-    DIRECTORY + "data/tmp/matchtree.txt"
+    "data/tmp/matchtree.txt"
   output:
     OUTPUT + "hsp.tsv",
     LOG + "castor_done",
     OUTPUT + "ko_merged.pickle",
-    DIRECTORY + "data/tmp/komat.tab"
+    "data/tmp/komat.tab"
   shell:
     "python {DIRECTORY}castor_predict.py {DIRECTORY} {OUTPUT} {LOG};touch {LOG}castor_done"
 
@@ -110,4 +119,4 @@ rule Ranalysis:
     OUTPUT + "PCAind.png",
     LOG + "analysis_done"
   shell:
-    "Rscript {DIRECTORY}Rstatanalysis.R {OUTPUT}pathwayAbundances.csv {METADATA_LOC} {OUTPUT} {PVAL};touch {LOG}analysis_done"
+    "Rscript {DIRECTORY}Rstatanalysis.R {OUTPUT}pathwayAbundances.csv {METADATA_LOC} {OUTPUT} {PVAL} {GRP1} {GRP2};touch {LOG}analysis_done"

@@ -4,8 +4,8 @@ import glob
 include: "./snakefile-common"
 
 
-otuSeq = [file for file in glob.glob(DIRECTORY + "otudir/*.fasta")]
-otuTable = [file for file in glob.glob(DIRECTORY + "otudir/*.txt")]
+otuSeq = [file for file in glob.glob("otudir/*.fasta")]
+otuTable = [file for file in glob.glob("otudir/*.txt")]
 
 
 
@@ -27,6 +27,6 @@ rule otuProcessing:
         otuTable
     output:
         LOG + "otu_done",
-        DIRECTORY + "otudir/otuSeqs.fasta.sam"
+        "otudir/otuSeqs.fasta.sam"
     shell:
-        "python otuProcessing.py {input[0]} {input[1]} {INPUT};touch {LOG}otu_done"
+        "python {DIRECTORY}otuProcessing.py {input[0]} {input[1]} {INPUT} {UNITE_DB};touch {LOG}otu_done"

@@ -4,7 +4,7 @@ from subprocess import check_output
 from os import path,makedirs
 
 
-def run_tango(this_path,matchfiles_dir,output_dir):
+def run_tango(tango_path,this_path,matchfiles_dir,output_dir):
 
     # check if tango dir exists in output directory, if not create it:
     if not path.isdir(this_path + '/' + output_dir + '/tango'):
@@ -24,16 +24,16 @@ def run_tango(this_path,matchfiles_dir,output_dir):
             this_path + '/tango/tango.pl',
             '--q-value', '0.5',
             '--taxonomy', this_path + 'data/UNITE.prep',
-            '--matches', this_path + '/' + matchfiles_dir + '/' + matchfile,
-            '--output', this_path + '/' + output_dir + '/tango/' + matchfile])
+            '--matches',  matchfiles_dir + '/' + matchfile,
+            '--output',  output_dir + '/tango/' + matchfile])
 
 
 
 
-if len(sys.argv) == 4:
-        run_tango(sys.argv[1], sys.argv[2], sys.argv[3])
+if len(sys.argv) == 5:
+        run_tango(sys.argv[4], sys.argv[1], sys.argv[2], sys.argv[3])
 else:
         print "\n\nError in run_tango arguments:"
-        print "There should be 3 command line arguments (cur_dir, matchfiles_dir, output_dir)"
+        print "There should be 4 command line arguments (cur_dir, matchfiles_dir, output_dir, tango_dir)"
         print "Example:"
-        print "python run_tango.py /current/dir /matchfiles/dir /output/dir"
+        print "python run_tango.py /current/dir /matchfiles/dir /output/dir tango/dir"

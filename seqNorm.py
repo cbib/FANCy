@@ -32,7 +32,6 @@ def upperQuartile(nums):
 def tss(dico):
     #apply Total Sum Scaling to a dataset
     ts = sum(dico.values())
-
     for key in dico.keys():
         if dico[key] != 0:
             dico[key] = dico[key] / float(ts)

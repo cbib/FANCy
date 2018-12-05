@@ -5,9 +5,9 @@ import csv
 import glob
 import pickle
 
-def build_ko_matrix(nodes):
+def build_ko_matrix(cur_dir,nodes):
     mat = {}
-    for kofilename in glob.glob('data/ko/*.tab'): # Searching in tab separated ko matrices
+    for kofilename in glob.glob(cur_dir + 'data/ko/*.tab'): # Searching in tab separated ko matrices
         parse_komat_file(kofilename,mat,nodes) # Parsing each file
     kos = write_komat('data/tmp/komat.tab',mat) # Writing matrix
     return (mat,kos)
@@ -16,9 +16,9 @@ def run_castor(this_path,output_dir):
     # Runs castor
     check_output(['python3',
         this_path + 'picrust2/scripts/hsp.py', # Picrust2 hsp.py script
-        '-t', this_path + 'data/tmp/matchtree.txt', # Taxonomic tree
-        '-o', this_path + output_dir + '/hsp', # Output file      replaced "+ '/' +"  with "+"
-        '--observed_trait_table', this_path + 'data/tmp/komat.tab']) # KO matrix
+        '-t',  'data/tmp/matchtree.txt', # Taxonomic tree
+        '-o',  output_dir + '/hsp', # Output file      replaced "+ '/' +"  with "+"
+        '--observed_trait_table', 'data/tmp/komat.tab']) # KO matrix
     # Interpret castor
     f = open(output_dir + '/hsp.tsv')
     # Parsing header
@@ -57,7 +57,7 @@ if len(sys.argv) == 4:
             nodes = csv.reader(nodeFile)
             nodes = [int(item[0]) for item in nodes]
         print('<> Building ko matrix <>')
-        mat, kos = build_ko_matrix(set(nodes))
+        mat, kos = build_ko_matrix(cur_dir,set(nodes))
         print('>>> Found ko for {} nodes ({} unique ko)'.format(str(len(mat)),str(len(kos))))
 
 
