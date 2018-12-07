@@ -1,6 +1,6 @@
 import glob
 import sys
-from ete2 import NCBITaxa
+from ete3 import NCBITaxa
 from os import path,makedirs
 from helpers import *
 import pickle
@@ -36,7 +36,7 @@ def explore_tango_file(ncbi,filename,allowed):
 def parse_tango_results(ncbi,output_dir,allowed = ['c','g','f','k','o','p']):
     ids, sps, rpr, tps, err = (set(), set(), dict(), dict(), [])
     for sample in glob.glob(output_dir + '/tango/*'):
-        print '--- Loading {} ---'.format(sample)
+        print('--- Loading {} ---'.format(sample))
         for (tax_group, tax_id) in explore_tango_file(ncbi,sample,allowed):
             if tax_id != -1:
                 ids.add(tax_id)
@@ -86,7 +86,7 @@ if len(sys.argv) == 5:
         DIRECTORY = sys.argv[1]
         LOG_DIR = sys.argv[2]
         OUTPUT_DIR = sys.argv[3]
-	SQLITE_LOC = sys.argv[4]
+        SQLITE_LOC = sys.argv[4]
 
 
         ncbi = NCBITaxa(SQLITE_LOC)
@@ -100,13 +100,13 @@ if len(sys.argv) == 5:
         print('>>> Tree has {} nodes'.format(str(len(nodes))))
 
         log_taxa(LOG_DIR,DIRECTORY,ids,sps,nodes,tps)
-        with open(OUTPUT_DIR + "/tps.pickle", "w+") as dictFile:
+        with open(OUTPUT_DIR + "/tps.pickle", "wb+") as dictFile:
             pickle.dump(tps,dictFile)
 
 
 
 else:
-        print "\n\nError in process_tango.py arguments:"
-        print "There should be 2 command line arguments (/path/to/log/dir)"
-        print "Example:"
-        print "python check_db_age.py /path/to/pipeline/main/folder"
+        print("\n\nError in process_tango.py arguments:")
+        print("There should be 2 command line arguments (/path/to/log/dir)")
+        print("Example:")
+        print("python check_db_age.py /path/to/pipeline/main/folder")

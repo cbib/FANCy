@@ -1,13 +1,7 @@
 
-#install.packages("FactoMineR")
-#install.packages("gplots")
-
 ########### Libraries #################
 
 # needs libxml2-devel installed on system
-source("https://bioconductor.org/biocLite.R")
-biocLite("DESeq2")
-
 
 library(FactoMineR)
 library(ggplot2)
@@ -18,6 +12,7 @@ library(pheatmap)
 suppressWarnings(suppressMessages(library(DESeq2)))
 
 ####################### functions ##############
+options(bitmapType='cairo')
 
 
 loadData = function(fileLocation){
@@ -54,12 +49,7 @@ pvalCalculator = function(dataset, groupingVector, outputDir,grp1,grp2){
 
   el1 = grp1
   el2 = grp2
-  print(grp1)
-  print(grp2)
   for(i in 1:nrow(dataset)){
-    print(colnames(dataset))
-    print(rownames(groupingVector)[(groupingVector == el1)])
-    print(rownames(groupingVector)[(groupingVector == el2)])
     A = sapply(dataset[i,rownames(groupingVector)[(groupingVector == el1)]], as.numeric)
     B = sapply(dataset[i,rownames(groupingVector)[(groupingVector == el2)]], as.numeric)
     test = wilcox.test(A,B)

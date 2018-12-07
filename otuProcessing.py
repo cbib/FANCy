@@ -66,7 +66,7 @@ def otuTableProcessor(otuTablePath):
 
                 for otuValues in reader:
                         otuName = otuValues["otu"]
-                        sampleNames = otuValues.keys()
+                        sampleNames = list(otuValues.keys())
                         sampleNames.remove("otu")
                         for sample in sampleNames:
                                 if sample not in otuDict:
@@ -112,7 +112,7 @@ if len(sys.argv) == 5:
             makedirs(matchdir)
         otuProcessing(otuseq, otutable, matchdir,db)
 else:
-        print "\n\nError in makeMatch.py arguments:"
-        print "There should be 4 command line arguments (Path to OTUsequence file, Path to OTU/sample table, output Match directory and path to UNITEdb)"
-        print "Example:"
-        print "python makeMatch.py /Path/to/OTUSequenceFile /Path/to/OTUperSampleFile /Path/for/output/matchfiles /path/to/UNITEdb"
+        print("\n\nError in otuProcessing.py arguments:")
+        print("There should be 4 command line arguments (Path to OTUsequence file, Path to OTU/sample table, output Match directory and path to UNITEdb)")
+        print("Example:")
+        print("python otuProcessing.py /Path/to/OTUSequenceFile /Path/to/OTUperSampleFile /Path/for/output/matchfiles /path/to/UNITEdb")

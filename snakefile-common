@@ -34,8 +34,6 @@ TANGO = config["tango"]
 GRP1 = config["GRP1"]
 
 GRP2 = config ["GRP2"]
-
-
 # extract the filenames from the path and file extensions. (path by "/, extensions by ".")
 
 fileNames = [".".join(file.split("/")[-1].split(".")[0:-2]) for file in glob.glob(INPUT + "*.sam.match")]
@@ -45,18 +43,19 @@ rule check_ncbi_taxa:
   output:
     LOG + "db_done"
   shell:
-    "python {DIRECTORY}check_db_age.py {DIRECTORY} {SQLITE_DB};touch {LOG}db_done"
+    "python3 {DIRECTORY}check_db_age.py {DIRECTORY} {SQLITE_DB};touch {LOG}db_done"
 
 
 rule run_tango:
   input:
+    LOG + "input_present",
     LOG + "db_done",
     expand(INPUT + "{files}.sam.match", files=fileNames)
   output:
     LOG + "tango_run_done",
     expand(OUTPUT + "tango/{files}.sam.match_0.5", files=fileNames)
   shell:
-    "python {DIRECTORY}run_tango.py {DIRECTORY} {INPUT} {OUTPUT} {TANGO};touch {LOG}tango_run_done"
+    "python3 {DIRECTORY}run_tango.py {DIRECTORY} {INPUT} {OUTPUT} {TANGO};touch {LOG}tango_run_done"
 
 rule process_tango:
   input:
@@ -69,7 +68,7 @@ rule process_tango:
     LOG + "tango_processed",
     OUTPUT + "tps.pickle"
   shell:
-    "python {DIRECTORY}process_tango.py {DIRECTORY} {LOG} {OUTPUT} {SQLITE_DB};touch {LOG}tango_processed"
+    "python3 {DIRECTORY}process_tango.py {DIRECTORY} {LOG} {OUTPUT} {SQLITE_DB};touch {LOG}tango_processed"
 
 
 rule predict_castor:
@@ -81,7 +80,7 @@ rule predict_castor:
     OUTPUT + "ko_merged.pickle",
     "data/tmp/komat.tab"
   shell:
-    "python {DIRECTORY}castor_predict.py {DIRECTORY} {OUTPUT} {LOG};touch {LOG}castor_done"
+    "python3 {DIRECTORY}castor_predict.py {DIRECTORY} {OUTPUT} {LOG};touch {LOG}castor_done"
 
 
 rule normalize:
@@ -95,7 +94,7 @@ rule normalize:
     OUTPUT + "KO_by_sample_normalized.tsv",
     LOG + "normalize_done"
   shell:
-    "python {DIRECTORY}seqNorm.py {OUTPUT} {OPTION};python {DIRECTORY}normalize.py {DIRECTORY} {OUTPUT} {LOG};touch {LOG}normalize_done"
+    "python3 {DIRECTORY}seqNorm.py {OUTPUT} {OPTION};python3 {DIRECTORY}normalize.py {DIRECTORY} {OUTPUT} {LOG};touch {LOG}normalize_done"
 
 rule minpathHMP:
   input:
@@ -107,7 +106,7 @@ rule minpathHMP:
     OUTPUT + "pathwayAbundances.csv",
     LOG  + "minpath_done"
   shell:
-    "python {DIRECTORY}run_minpathHMP.py {DIRECTORY} {OUTPUT};touch {LOG}minpath_done"
+    "python3 {DIRECTORY}run_minpathHMP.py {DIRECTORY} {OUTPUT};touch {LOG}minpath_done"
 
 rule Ranalysis:
   input:

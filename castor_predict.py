@@ -22,7 +22,7 @@ def run_castor(this_path,output_dir):
     # Interpret castor
     f = open(output_dir + '/hsp.tsv')
     # Parsing header
-    header = f.next().split('\t') # Array containing indexed ko names
+    header = f.readline().split('\t') # Array containing indexed ko names
     values = [data.split('\t') for data in f] # Array of arrays containing ko predictions for a species
     return (header,values)
 
@@ -70,7 +70,7 @@ if len(sys.argv) == 4:
         merge_ko_matrix_with_predictions(mat,values,header)
         print(">>> Merge finished.")
 
-        with open(output_dir + "/ko_merged.pickle", "w+") as dictFile:
+        with open(output_dir + "/ko_merged.pickle", "wb+") as dictFile:
             pickle.dump(mat,dictFile)
 
 
@@ -80,7 +80,7 @@ if len(sys.argv) == 4:
 
 
 else:
-        print "\n\nError in castor_predict arguments:"
-        print "There should be 2 command line arguments (current_dir, output_dir)"
-        print "Example:"
-        print "python castor_predict.py /current/dir /output/dir"
+        print("\n\nError in castor_predict arguments:")
+        print("There should be 2 command line arguments (current_dir, output_dir)")
+        print("Example:")
+        print("python castor_predict.py /current/dir /output/dir")

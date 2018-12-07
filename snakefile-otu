@@ -4,8 +4,8 @@ import glob
 include: "./snakefile-common"
 
 
-otuSeq = [file for file in glob.glob("otudir/*.fasta")]
-otuTable = [file for file in glob.glob("otudir/*.txt")]
+otuSeq = config["otuSeq"]
+otuTable = config["otuTable"]
 
 
 
@@ -18,7 +18,8 @@ rule all:
     LOG + "castor_done",
     LOG + "normalize_done",
     LOG + "minpath_done",
-    LOG + "analysis_done"
+    LOG + "analysis_done",
+    LOG + "input_present",
     #outfile = config["output_dir"] + "pathwayAbundances.csv"
 
 rule otuProcessing:
@@ -26,7 +27,8 @@ rule otuProcessing:
         otuSeq,
         otuTable
     output:
+        LOG + "input_present",
         LOG + "otu_done",
-        "otudir/otuSeqs.fasta.sam"
+        otuSeq + ".sam"
     shell:
-        "python {DIRECTORY}otuProcessing.py {input[0]} {input[1]} {INPUT} {UNITE_DB};touch {LOG}otu_done"
+        "python3 {DIRECTORY}otuProcessing.py {input[0]} {input[1]} {INPUT} {UNITE_DB};touch {LOG}otu_done;touch {LOG}input_present"

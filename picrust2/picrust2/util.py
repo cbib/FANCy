@@ -142,7 +142,6 @@ def write_phylip(seq, outfile):
 def system_call_check(cmd, print_out=False, stdout=None, stderr=None):
     """Run system command and throw and error if return is not 0. Input command
     can be a list containing the command or a string."""
-
     # Print command out if option set.
     if print_out:
         if type(cmd) is list:
@@ -154,8 +153,7 @@ def system_call_check(cmd, print_out=False, stdout=None, stderr=None):
     if type(cmd) is str:
         cmd = cmd.split()
 	
-    return_value = call(cmd, stdout=stdout, stderr=stderr, shell=True)
-
+    return_value = call(cmd, stdout=stdout, stderr=stderr)
     # Exit with error if command did not finish successfully.
     if return_value != 0:
         raise SystemExit("Error running this command:\n" + " ".join(cmd))

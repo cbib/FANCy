@@ -45,7 +45,7 @@ if len(sys.argv) == 3:
 
 
 else:
-        print "\n\nError in castor_predict arguments:"
-        print "There should be 2 command line arguments (current_dir, output_dir)"
-        print "Example:"
-        print "python castor_predict.py /current/dir /output/dir"
+        print("\n\nError in castor_predict arguments:")
+        print("There should be 2 command line arguments (current_dir, output_dir)")
+        print("Example:")
+        print("python castor_predict.py /current/dir /output/dir")
