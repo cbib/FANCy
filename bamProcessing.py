@@ -23,7 +23,7 @@ def checkIntegrity(filePath):
 
 
 def readSam(samFile, matchDict):
-        copyDict = copy.deepcopy(matchDict) # shallow copying is a nightmare XO
+        copyDict = copy.deepcopy(matchDict) # shallow copying is a nightmare for nested dicts XO
         print("sam -> match for {}".format(samFile))
         with open(samFile,"r") as data:
                 for line in data.readlines():
