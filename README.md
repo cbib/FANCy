@@ -174,7 +174,7 @@ FANCy can also be executed using a table of OTU sequences and their abundances i
 FANCy-otu.sh otuTable otuSeqs matchfiles log out metadataVector pValue normMethod MetaGrp1 MetaGrp2
 ```
 
-#### Argument details:
+#### Details:
 
 |    Argument    |                                                                    Explanation                                                                   |
 |:--------------:|:------------------------------------------------------------------------------------------------------------------------------------------------:|
@@ -189,3 +189,21 @@ FANCy-otu.sh otuTable otuSeqs matchfiles log out metadataVector pValue normMetho
 |   normMethod   |  Normalization method chosen to adjust for sequencing depth ("tss":Total Sum Scaling, "uqs":Upper Quartile Scaling, or none for any other input) |
 | MetaGrp1       |                                First group of the metadata vector to examine statistical differential expression.                                |
 | MetaGrp2       |                                second group of the metadata vector to examine statistical differential expression.                               |
+
+
+
+##### normalization
+
+The Normalization methods to adjust for sequencing depth employed are:
+
+* Total Sum Scaling
+
+Which adjusts the value of each taxonId using the total sum of all taxonIds, sample by sample.
+
+* Upper Quartile Scaling
+
+Which adjusts the value of each taxonId using the Upper Quartile of all taxonIds in a sample, sample by sample.
+
+* none
+
+Any other argument passed other than "tss" and "uqs" results in no sequencing depth normalization.
