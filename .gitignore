@@ -6,3 +6,8 @@ ncbiDB/*
 *log*/*
 *output*/*
 data/tmp/*
+NONE/*
+UQS/*
+TTS/*
+matchfiles/*
+out/*

@@ -32,7 +32,6 @@ def upperQuartile(nums):
 def tss(dico):
     #apply Total Sum Scaling to a dataset
     ts = sum(dico.values())
-
     for key in dico.keys():
         if dico[key] != 0:
             dico[key] = dico[key] / float(ts)
@@ -73,16 +72,16 @@ if len(sys.argv) == 3:
         option = sys.argv[2]
 
         if option == "tss":
-            with open(output_dir + "tps.pickle", "r") as dictFile:
+            with open(output_dir + "tps.pickle", "rb") as dictFile:
                 tps = pickle.load(dictFile)
             tps = datasetTSS(tps)
-            with open(output_dir + "tps.pickle", "w") as dictFile:
+            with open(output_dir + "tps.pickle", "wb") as dictFile:
                 pickle.dump(tps,dictFile)
         elif option == "uqs":
-            with open(output_dir + "tps.pickle", "r") as dictFile:
+            with open(output_dir + "tps.pickle", "rb") as dictFile:
                 tps = pickle.load(dictFile)
             tps = datasetUQS(tps)
-            with open(output_dir + "tps.pickle", "w") as dictFile:
+            with open(output_dir + "tps.pickle", "wb") as dictFile:
                 pickle.dump(tps,dictFile)
         else:
             pass
@@ -90,9 +89,9 @@ if len(sys.argv) == 3:
 
 
 else:
-        print "\n\nError in seqNorm.py arguments:"
-        print "There should be 2 command line arguments (output/dir/path and normalization option)"
-        print "Examples:"
-        print "python seqNorm.py /path/to/output/dir tss"
-        print "python seqNorm.py /path/to/output/dir uqs"
-        print "python seqNorm.py /path/to/output/dir none"
+        print("\n\nError in seqNorm.py arguments:")
+        print("There should be 2 command line arguments (output/dir/path and normalization option)")
+        print("Examples:")
+        print("python seqNorm.py /path/to/output/dir tss")
+        print("python seqNorm.py /path/to/output/dir uqs")
+        print("python seqNorm.py /path/to/output/dir none")

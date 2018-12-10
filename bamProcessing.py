@@ -87,7 +87,7 @@ if len(sys.argv) == 3:
         bamProcessing(bamdir, matchdir)
 
 else:
-        print "\n\nError in makeMatch.py arguments:"
-        print "There should be 2 command line arguments (a BAM file and the output match directory)"
-        print "Example:"
-        print "python bamProcessing.py /path/to/BAMfile /path/for/output/matchfiles"
+        print("\n\nError in bamProcessing.py arguments:")
+        print("There should be 2 command line arguments (the bamfiles directory and the output match directory)")
+        print("Example:")
+        print("python bamProcessing.py /path/to/BAMfile/dir /path/for/output/matchfiles")

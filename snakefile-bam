@@ -9,7 +9,11 @@ include: "./snakefile-common"
 
 # get list of filenames for the matchfiles we need to generate.
 
-fileNames = [file.split("/")[-1].split(".")[0] for file in glob.glob(DIRECTORY + "bamdir/*.bam")]
+fileNames = [".".join(file.split("/")[-1].split(".")[0:-1]) for file in glob.glob(bamDir + "/*.bam")]
+
+
+bamDir = config["bamdir"]
+
 
 
 rule all:
@@ -22,17 +26,18 @@ rule all:
     LOG + "castor_done",
     LOG + "normalize_done",
     LOG + "minpath_done",
-    LOG + "analysis_done"
-
+    LOG + "analysis_done",
+    LOG + "input_present"
 
 
 
 
 rule bamProcessing:
     input:
-          expand(DIRECTORY + "bamdir/{files}.bam", files=fileNames)
+        expand("{files}.bam", files=fileNames)
     output:
+        LOG + "input_present",
         expand(INPUT + "{files}.sam.match", files=fileNames),
         LOG + "bam_done"
     shell:
-        "python {DIRECTORY}bamProcessing.py bamdir {INPUT};touch {LOG}bam_done"
+        "python3 {DIRECTORY}bamProcessing.py {bamDir} {INPUT};touch {LOG}bam_done;touch {LOG}input_present"

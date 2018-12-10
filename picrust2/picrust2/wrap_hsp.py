@@ -45,7 +45,7 @@ def castor_hsp_workflow(tree_path,
 
         for i in range(ceil(num_chunks)):
 
-            subset_file = path.join(temp_dir, "subset_tab_" + str(i))
+            subset_file = path.join(temp_dir +"/"+  "subset_tab_" + str(i))
 
             subset_tab = trait_tab.iloc[:, i * chunk_size:(i + 1) * chunk_size]
 
@@ -106,10 +106,13 @@ def castor_hsp_wrapper(tree_path, trait_tab, hsp_method, calc_ci=False,
         check_input_setting = "FALSE"
 
     # Create temporary directory for writing output files of castor_hsp.R
+    
     with TemporaryDirectory() as temp_dir:
-
+        
         output_count_path = path.join(temp_dir, "predicted_counts.txt")
         output_ci_path = path.join(temp_dir, "predicted_ci.txt")
+        
+
 
         hsp_cmd = " ".join(["Rscript",
                             castor_hsp_script,
@@ -121,6 +124,9 @@ def castor_hsp_wrapper(tree_path, trait_tab, hsp_method, calc_ci=False,
                             output_count_path,
                             output_ci_path,
                             str(ran_seed)])
+
+        
+
 
         # Run castor_hsp.R
         system_call_check(hsp_cmd)
