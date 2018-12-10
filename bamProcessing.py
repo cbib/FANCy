@@ -69,7 +69,7 @@ def bamtosam(bam):
 def bamProcessing(bamDir,matchDir):
         ## if BAM, then do the BAM steps using the commandline arguments Directory,
         # being a directory containing the bam files.
-	# create the sam file for the current bam, then process it as usual. (see writeMatch function)
+        # create the sam file for the current bam, then process it as usual. (see writeMatch function)
         for bam in glob.glob(bamDir + "/*.bam"):
             sam = bamtosam(bam)
             match = readSam(sam, {})
