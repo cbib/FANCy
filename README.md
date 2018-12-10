@@ -171,7 +171,7 @@ FANCy-bam.sh  bamZip matchfiles log out metadataVector pValue normMethod MetaGrp
 FANCy can also be executed using a table of OTU sequences and their abundances in each sample, and a FASTA file containing the sequences for each of aforementioned OTU sequences.
 
 ```shell
-FANCy-otu.sh otuTable.txt otuSeqs.fasta matchfiles log out metadataVector pValue normMethod MetaGrp1 MetaGrp2
+FANCy-otu.sh otuTable otuSeqs matchfiles log out metadataVector pValue normMethod MetaGrp1 MetaGrp2
 ```
 
 #### Argument details:
