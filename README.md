@@ -14,9 +14,9 @@ This information is summarised in the form of a Pathways Abundance file containi
 
 ## Installation
 
-Example commands for the installation are given for CentOS.
+Example commands for the installation are given for a CentOS VM set up for this purpose.
 
-0. Clone the pipeline onto your local computer/cluster:
+* Clone the pipeline onto your local computer/cluster:
 
 We clone directly from this repo, but you might want to clone from a forked copy on your own github account, in case you want to modify the pipeline later.
 
@@ -33,13 +33,13 @@ We clone directly from this repo, but you might want to clone from a forked copy
  ```
 
 
-1. Update your package installer (Yum for centOS, apt-get for ubuntu...)
+* Update your package installer (Yum for centOS, apt-get for ubuntu...)
 
 ```shell
 yum update
 ```
 
-2. Install Python3, pip3, setuptools and associated libraries.
+* Install Python3, pip3, setuptools and associated libraries.
 
 This was done from source to get the latest versions (built-in repositories for Yum were outdated on CentOS)
 
@@ -62,10 +62,8 @@ sudo make install
 
 ```
 
-It might also be necessary to install pip2, if it isn't installed by default, as both pip2 and 3 are needed.
 
-
-3. Install Snakemake from source for the latest version:
+* Install Snakemake from source for the latest version:
 
 jsonschema was a missing dependency for snakemake in our case, examining any error messages thrown during setup will allow you to determine if your system is missing any other dependencies.
 
@@ -79,7 +77,7 @@ pip3 install jsonschema
 python3 setup.py install
 ```
 
-4. Install R, as well as any dependencies our R libraries will need:
+* Install R, as well as any dependencies our R libraries will need:
 
 ```shell
 sudo yum install epel-release
@@ -87,21 +85,17 @@ sudo yum install epel-release
 sudo yum install R
 
 sudo yum install libxml2-devel
+```
+* Install Perl and Perl Core libraries.
 
+```
 yum install perl-Switch
 
 yum install perl-core
 
 ```
 
-5. Install the R libraries that our pipeline needs:
-
-```shell
-Rscript installLibraries.R
-```
-If you  already had an install of R on your machine, you might encounter error messags about other libraries having been compiled for different versions and being incompatible. normally re-installing these R libraries using install.packages() is enough to fix this problem.
-
-6. Install any extra libraries needed by the pipeline:
+* Install any extra libraries needed by the pipeline:
 
 ```shell
 pip2 install pandas
@@ -130,36 +124,68 @@ yum install R-Rcpp
 
 
 
-7. Install the Castor R library using the pre-made script
+* Install the Castor R library using the pre-made script
 
 ```shell
 Rscript scripts/install_castor.r
 ```
 
-8. Install ete2 (python2 version)
+* Install the R libraries that our pipeline needs:
+
+```shell
+Rscript installLibraries.R
+```
+If you  already had an install of R on your machine, you might encounter error messags about other libraries having been compiled for different versions and being incompatible. normally re-installing these R libraries using install.packages() is enough to fix this problem.
+
+* Install ete2 (python2 version)
 
 ```shell
 
-pip2 install ete2
+pip3 install ete3
 
 ```
-9. install Picrust2
+* Picrust2
 
-This step has an added complexity, as Picrust 2 is still in beta and has a few bugs in their installation script to take care of.
+We opted not to install the entire Picrust2 pipeline, as it is in beta and the installation script was non-functional for our version.
 
-first install it's dependencies, Numpy, H5py, joblib and Biom-format (in that order).
+Instead we got Python3 to be able to interprete the entire Picrust2 folder in our pipeline's directory as a local module, though this necessitated a syslink, although uploading to Github has transformed this into a simple directory containing the extra scripts.
 
-Then use the included picrust2 installation script.
+This means that Picrust2 most likely won't work outside the limited usage of Castor and Minpath that we make of it in our pipeline.
+
+
+## Using the Pipeline
+
+The pipeline has 2 methods of execution.
+
+### FANCy with BAM files
+
+FANCy can be executed using a zip file containing a collection of bam files:
+
 
 ```shell
-pip3 install numpy h5py joblib
-pip3 install biom-format
-
-python3 picrust2/setup.py install
+FANCy-bam.sh  bamZip matchfiles log out metadataVector pValue normMethod MetaGrp1 MetaGrp2
 ```
-The added complexity comes from Picrust2 not copying over folders, or content of said folders, into it's installation path.
-Depending on where you installed it (here it was installed into the default python3.5 package location) you'll need to adapt the below command slightly:
+
+### FANCy with OTU table and fasta
+
+FANCy can also be executed using a table of OTU sequences and their abundances in each sample, and a FASTA file containing the sequences for each of aforementioned OTU sequences.
 
 ```shell
-cp -r picrust2/picrust2/Rscripts/ /usr/local/lib/python3.5/site-packages/PICRUSt2-2.0.0b3-py3.5.egg/picrust2/Rscripts
+FANCy-otu.sh otuTable.txt otuSeqs.fasta matchfiles log out metadataVector pValue normMethod MetaGrp1 MetaGrp2
 ```
+
+#### Argument details:
+
+|    Argument    |                                                                    Explanation                                                                   |
+|:--------------:|:------------------------------------------------------------------------------------------------------------------------------------------------:|
+|     bamZip     |      Zip file containing the BAM files to analyse.  name of zip file will be used as name of the directory that will contain the BAM files.      |
+|    otuTable    |                File containing a comma-separated table of OTU sequences and their abundances in each sample (see example/otuTable)               |
+|     otuSeqs    |                              File containing the Fasta sequences for each OTU in the OTU Table (see example/otuSeqs)                             |
+|   matchfiles   |                           Directory that will store the Matchfiles (created if non-existent, overwrites existing files)                          |
+|       log      |                              Directory that will store the logs (created if non-existent, overwrites existing files)                             |
+|       out      |                             Directory that will store the output (created if non-existent, overwrites existing files)                            |
+| MetadataVector |          CSV File containing the Metadata vector, with the group each sample belongs to (1 group per sample, see example/metadataVector)         |
+|     pValue     | P Value for the statistical significance testing of the pathways (0.05 is the norm, impacts creation or not of the significant pathways heatmap) |
+|   normMethod   |  Normalization method chosen to adjust for sequencing depth ("tss":Total Sum Scaling, "uqs":Upper Quartile Scaling, or none for any other input) |
+| MetaGrp1       |                                First group of the metadata vector to examine statistical differential expression.                                |
+| MetaGrp2       |                                second group of the metadata vector to examine statistical differential expression.                               |
