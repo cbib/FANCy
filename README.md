@@ -135,22 +135,20 @@ Rscript scripts/install_castor.r
 ```shell
 Rscript installLibraries.R
 ```
-If you  already had an install of R on your machine, you might encounter error messags about other libraries having been compiled for different versions and being incompatible. normally re-installing these R libraries using install.packages() is enough to fix this problem.
+If you  already had an install of R on your machine, you might encounter error messages about other libraries having been compiled for different versions and being incompatible. normally re-installing these R libraries using install.packages() is enough to fix this problem.
 
-* Install ete2 (python2 version)
+* Install ete3
 
 ```shell
 
 pip3 install ete3
 
 ```
-* Picrust2
+* MinPath HMP
 
-We opted not to install the entire Picrust2 pipeline, as it is in beta and the installation script was non-functional for our version.
+Our pipeline uses the MinPath (Minimal set of Pathways) program to find the most likely pathways given the KO present in the dataset.
 
-Instead we got Python3 to be able to interprete the entire Picrust2 folder in our pipeline's directory as a local module, though this necessitated a syslink, although uploading to Github has transformed this into a simple directory containing the extra scripts.
-
-This means that Picrust2 most likely won't work outside the limited usage of Castor and Minpath that we make of it in our pipeline.
+The MinPath version used is a modified version called *MinPathHMP*, created by the HUMAnN2 ("HMP Unified Metabolic Analysis Network 2":http://huttenhower.sph.harvard.edu/humann2) project.
 
 
 ## Using the Pipeline
