@@ -132,19 +132,19 @@ Rscript scripts/install_castor.r
 ```shell
 Rscript installLibraries.R
 ```
-If you  already had an install of R on your machine, you might encounter error messags about other libraries having been compiled for different versions and being incompatible. normally re-installing these R libraries using install.packages() is enough to fix this problem.
+If you  already had an install of R on your machine, you might encounter error messages about other libraries having been compiled for different versions and being incompatible. normally re-installing these R libraries using install.packages() is enough to fix this problem.
 
-* Install ete2 (python2 version)
+* Install ete3
 
 ```shell
 
 pip3 install ete3
 
 ```
+
 * Minpath-HMP
 
 We used Minpath-HMP shipped with Picrust2 to calculate pathways abundances.
-
 
 ## Using the Pipeline
 
