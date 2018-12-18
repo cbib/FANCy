@@ -23,7 +23,7 @@ def checkIntegrity(filePath):
 
 
 def readSam(samFile, matchDict):
-        copyDict = copy.deepcopy(matchDict) # shallow copying is a nightmare XO
+        copyDict = copy.deepcopy(matchDict) # shallow copying is a nightmare for nested dicts XO
         print("sam -> match for {}".format(samFile))
         with open(samFile,"r") as data:
                 for line in data.readlines():
@@ -71,7 +71,7 @@ def bamtosam(bam):
 def bamProcessing(bamDir,matchDir):
         ## if BAM, then do the BAM steps using the commandline arguments Directory,
         # being a directory containing the bam files.
-	# create the sam file for the current bam, then process it as usual. (see writeMatch function)
+        # create the sam file for the current bam, then process it as usual. (see writeMatch function)
         for bam in glob.glob(bamDir + "/*.bam"):
             sam = bamtosam(bam)
             match = readSam(sam, {})

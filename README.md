@@ -1,13 +1,10 @@
 # FANCy: Functional Analysis of fuNgal Communities
 
+by: Katarzyna B. Hooks, Peter Bock, Marin Fierens, Macha Nikolski
 
-## Introduction
+The FANCy pipeline uses ITS1/ITS2 sequencing results and a reference ITS database to predict the fungal species composition in a community, then combines that information with the available functional annotation of the fungal genomes and ancestral state reconstruction to summarise the gene families and pathways present in each sample.
 
-by: Katarzyna B. Hooks, Peter Bock, Laurence Delhaes, David Fitzpatrick, Macha Nikolski, Marin Fierens
-
-The FANCy pipeline uses ITS1/ITS2 sequencing results and a reference ITS database to predict the fungal species composition in a community, then combines that information with the available functional annotation of the fungal genomes and using ancestral state reconstruction to summarise the gene families and pathways present in each sample.
-
-It then uses R to perform several differential analysis of the pathways, comparing them between sample groups defined by the user, to determine which ones have a significant variance between groups.
+It then uses R to perform differential analysis of the pathways, comparing them between sample groups defined by the user, to determine which ones vary significantly between groups.
 
 This information is summarised in the form of a Pathways Abundance file containing the abundances of the different pathways for each sample, a file containing the statistical results (Pvalue, corrected Pvalue, log corrected values) as well as a PCA graph of the entire dataset and, if significant pathways for the user's chosen Pvalue cut-off were found, a heatmap showing their distribution across samples and values.
 
@@ -135,23 +132,19 @@ Rscript scripts/install_castor.r
 ```shell
 Rscript installLibraries.R
 ```
-If you  already had an install of R on your machine, you might encounter error messags about other libraries having been compiled for different versions and being incompatible. normally re-installing these R libraries using install.packages() is enough to fix this problem.
+If you  already had an install of R on your machine, you might encounter error messages about other libraries having been compiled for different versions and being incompatible. normally re-installing these R libraries using install.packages() is enough to fix this problem.
 
-* Install ete2 (python2 version)
+* Install ete3
 
 ```shell
 
 pip3 install ete3
 
 ```
-* Picrust2
 
-We opted not to install the entire Picrust2 pipeline, as it is in beta and the installation script was non-functional for our version.
+* Minpath-HMP
 
-Instead we got Python3 to be able to interprete the entire Picrust2 folder in our pipeline's directory as a local module, though this necessitated a syslink, although uploading to Github has transformed this into a simple directory containing the extra scripts.
-
-This means that Picrust2 most likely won't work outside the limited usage of Castor and Minpath that we make of it in our pipeline.
-
+We used Minpath-HMP shipped with Picrust2 to calculate pathways abundances.
 
 ## Using the Pipeline
 

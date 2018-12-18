@@ -15,7 +15,7 @@ def checkIntegrity(filePath):
         # checks if the SAM or BAM file
         # has the proper header and EOF components
         # 0 --> All good
-        # 1 or other --> problem, abort pipeline or ignore file ?
+        # 1 or other --> problem, abort pipeline.
         return subprocess.call(["samtools", "quickcheck", filePath])
 
 
