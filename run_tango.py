@@ -7,11 +7,9 @@ from os import path,makedirs
 def run_tango(tango_path,this_path,matchfiles_dir,output_dir):
 
     # check if tango dir exists in output directory, if not create it:
-    if not path.isdir(this_path + '/' + output_dir + '/tango'):
-        makedirs(this_path + '/' + output_dir + '/tango')
-    print(matchfiles_dir)
+    if not path.isdir( output_dir + '/tango'):
+        makedirs(output_dir + '/tango')
     for matchfile in glob.glob(matchfiles_dir + '/*'):
-        print(matchfile)
         # addition of split to avoid storing the matchfiles_dir in matchfile object
         # if matchfile is 'matchfiles_dir.../X.match', keep only name of matchfile after last/:
         if "/" in matchfile:

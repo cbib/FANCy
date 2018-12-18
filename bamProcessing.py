@@ -44,6 +44,8 @@ def readSam(samFile, matchDict):
         return(copyDict)
 
 def writeMatch(sam, link, repeats = {}):
+        if(".sam.sam" in sam):
+                sam = sam.replace(".sam.sam",".sam")
         with open(sam + ".match", "w+") as matchFile:
 
                 for key1 in link.keys():
@@ -73,7 +75,7 @@ def bamProcessing(bamDir,matchDir):
         for bam in glob.glob(bamDir + "/*.bam"):
             sam = bamtosam(bam)
             match = readSam(sam, {})
-            writeMatch(matchDir + "/" + sam.split("/")[1], match)
+            writeMatch(matchDir + "/" + sam.split("/")[-1], match)
             subprocess.call(["rm", sam])
 
 

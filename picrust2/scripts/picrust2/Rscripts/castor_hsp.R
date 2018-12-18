@@ -202,7 +202,17 @@ if (hsp_method == "pic" | hsp_method == "scp" | hsp_method == "subtree_average")
 # Add "sequence" as first column of predicted_values.
 predicted_values <- data.frame(predicted_values, check.names = FALSE)
 predicted_values$sequence <- unknown_tips
+
+
+# Added in error message in case there are NO predicted values. This is not part of the original script.
+if( length(predicted_values) == 1 ){
+    stop("There were no predicted values found by Castor, your data set might be too small / contain an insufficient number of taxons.")}
+
+
+
 predicted_values <- predicted_values[, c("sequence", colnames(trait_values))]
+
+
 
 # Write out predicted values.
 write.table(predicted_values, file=predict_outfile, row.names=FALSE, quote=FALSE, sep="\t")
