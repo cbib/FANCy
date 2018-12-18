@@ -19,14 +19,14 @@ We clone directly from this repo, but you might want to clone from a forked copy
 
  ```shell
  yum install git
- 
+
  mkdir pipeline
- 
+
  cd pipeline
- 
+
  git clone https://github.com/cbib/FANCy.git
- 
- 
+
+
  ```
 
 
@@ -41,11 +41,11 @@ yum update
 This was done from source to get the latest versions (built-in repositories for Yum were outdated on CentOS)
 
 ```shell
-sudo yum install yum-utils 
+sudo yum install yum-utils
 
-sudo yum-builddep python 
+sudo yum-builddep python
 
-curl -O https://www.python.org/ftp/python/3.5.0/Python-3.5.0.tgz 
+curl -O https://www.python.org/ftp/python/3.5.0/Python-3.5.0.tgz
 
 tar xf Python-3.5.0.tgz
 
@@ -55,7 +55,7 @@ cd Python-3.5.0
 
 make
 
-sudo make install 
+sudo make install
 
 ```
 
@@ -156,7 +156,7 @@ FANCy can be executed using a zip file containing a collection of bam files:
 
 
 ```shell
-FANCy-bam.sh  bamZip matchfiles log out metadataVector pValue normMethod MetaGrp1 MetaGrp2
+FANCy-bam.sh  -z bamZip  -m matchfiles  -l log  -o out -v metadataVector -p pValue -n normMethod -a MetaGrp1 -b MetaGrp2
 ```
 
 ### FANCy with OTU table and fasta
@@ -164,7 +164,7 @@ FANCy-bam.sh  bamZip matchfiles log out metadataVector pValue normMethod MetaGrp
 FANCy can also be executed using a table of OTU sequences and their abundances in each sample, and a FASTA file containing the sequences for each of aforementioned OTU sequences.
 
 ```shell
-FANCy-otu.sh otuTable otuSeqs matchfiles log out metadataVector pValue normMethod MetaGrp1 MetaGrp2
+FANCy-otu.sh -t otuTable -s otuSeqs -m matchfiles -l log -o out -v metadataVector -p pValue -n normMethod -a MetaGrp1 -b MetaGrp2
 ```
 
 #### Details:
@@ -174,11 +174,11 @@ FANCy-otu.sh otuTable otuSeqs matchfiles log out metadataVector pValue normMetho
 |     bamZip     |      Zip file containing the BAM files to analyse.  name of zip file will be used as name of the directory that will contain the BAM files.      |
 |    otuTable    |                File containing a comma-separated table of OTU sequences and their abundances in each sample (see example/otuTable)               |
 |     otuSeqs    |                              File containing the Fasta sequences for each OTU in the OTU Table (see example/otuSeqs)                             |
-|   matchfiles   |                           Directory that will store the Matchfiles (created if non-existent, overwrites existing files)                          |
-|       log      |                              Directory that will store the logs (created if non-existent, overwrites existing files)                             |
-|       out      |                             Directory that will store the output (created if non-existent, overwrites existing files)                            |
+|   matchfiles   (matchfiles)|                           Directory that will store the Matchfiles (created if non-existent, overwrites existing files)                          |
+|       log      (log)|                              Directory that will store the logs (created if non-existent, overwrites existing files)                             |
+|       out      (out)|                             Directory that will store the output (created if non-existent, overwrites existing files)                            |
 | MetadataVector |          CSV File containing the Metadata vector, with the group each sample belongs to (1 group per sample, see example/metadataVector)         |
-|     pValue     | P Value for the statistical significance testing of the pathways (0.05 is the norm, impacts creation or not of the significant pathways heatmap) |
+|     pValue  (0.05)    | P Value for the statistical significance testing of the pathways (0.05 is the norm, impacts creation or not of the significant pathways heatmap) |
 |   normMethod   |  Normalization method chosen to adjust for sequencing depth ("tss":Total Sum Scaling, "uqs":Upper Quartile Scaling, or none for any other input) |
 | MetaGrp1       |                                First group of the metadata vector to examine statistical differential expression.                                |
 | MetaGrp2       |                                second group of the metadata vector to examine statistical differential expression.                               |
