@@ -33,6 +33,11 @@ loadData = function(fileLocation){
   return(dataset)
 }
 
+saveData = function(fileLocation,dataset){
+  write.csv(dataset,fileLocation)
+  
+}
+
 getMetadataVector = function(metadataFile){
 
   # read in the metadata, containing the conditions for each run we wanr to filter by
