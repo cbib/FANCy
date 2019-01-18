@@ -15,7 +15,7 @@ def checkIntegrity(filePath):
         # checks if the SAM or BAM file
         # has the proper header and EOF components
         # 0 --> All good
-        # 1 or other --> problem, abort pipeline or ignore file ?
+        # 1 or other --> problem, abort pipeline.
         return subprocess.call(["samtools", "quickcheck", filePath])
 
 
@@ -66,7 +66,7 @@ def otuTableProcessor(otuTablePath):
 
                 for otuValues in reader:
                         otuName = otuValues["otu"]
-                        sampleNames = otuValues.keys()
+                        sampleNames = list(otuValues.keys())
                         sampleNames.remove("otu")
                         for sample in sampleNames:
                                 if sample not in otuDict:
@@ -78,7 +78,7 @@ def otuTableProcessor(otuTablePath):
 
 
 
-def otuProcessing(otuSeqPath, otuTablePath, matchDir):
+def otuProcessing(otuSeqPath, otuTablePath, matchDir,db):
 	## do the OTU steps using the commandline arguments Directory, OtuTable and OtuSequences.
 	# then use BWA to make a sam file from the OTU sequence file.
 	# with this samfile and the OTU table giving the OTU copies per sample,
@@ -88,8 +88,8 @@ def otuProcessing(otuSeqPath, otuTablePath, matchDir):
         # map the OTU Sequence file using our UNITEid DB (pre-indexed using "bwa index")
         sam = otuSeqPath + ".sam"
         checkIntegrity(sam)
-        with open(sam, "w") as samFile:
-                subprocess.call(["bwa", "mem", "-a", "./UNITEid", otuSeqPath], stdout=samFile)
+        with open(sam, "w+") as samFile:
+                subprocess.call(["bwa", "mem", "-a", db, otuSeqPath], stdout=samFile)
 
         otuPerSample = otuTableProcessor(otuTablePath)
 
@@ -103,15 +103,16 @@ def otuProcessing(otuSeqPath, otuTablePath, matchDir):
 ##################Main############################
 
 #if 4 arguments (script, OTUSeqPath, OtuTablePath and matchDIR)
-if len(sys.argv) == 4:
+if len(sys.argv) == 5:
         otuseq = sys.argv[1]
         otutable = sys.argv[2]
         matchdir = sys.argv[3]
+        db = sys.argv[4]
         if not path.isdir(matchdir):
             makedirs(matchdir)
-        otuProcessing(otuseq, otutable, matchdir)
+        otuProcessing(otuseq, otutable, matchdir,db)
 else:
-        print "\n\nError in makeMatch.py arguments:"
-        print "There should be 3 command line arguments (Path to OTUsequence file, Path to OTU/sample table, and output Match directory)"
-        print "Example:"
-        print "python makeMatch.py /Path/to/OTUSequenceFile /Path/to/OTUperSampleFile /Path/for/output/matchfiles"
+        print("\n\nError in otuProcessing.py arguments:")
+        print("There should be 4 command line arguments (Path to OTUsequence file, Path to OTU/sample table, output Match directory and path to UNITEdb)")
+        print("Example:")
+        print("python otuProcessing.py /Path/to/OTUSequenceFile /Path/to/OTUperSampleFile /Path/for/output/matchfiles /path/to/UNITEdb")

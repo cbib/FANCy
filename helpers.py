@@ -18,7 +18,7 @@ def merge_with_dict(d,k,v,c):
                 if d[k][v] == 0:
                     d[k][v] = c
                 elif c != 0:
-                    print '!!! Data conflict for {} ({} vs {}) [in {}]'.format(v,str(d[k][v]),str(c),str(k)) # @TODO better log
+                    print('!!! Data conflict for {} ({} vs {}) [in {}]'.format(v,str(d[k][v]),str(c),str(k))) # @TODO better log
         else:
             d[k][v] = c
     else:
@@ -42,7 +42,7 @@ def explore_tango_file(ncbi,filename,allowed):
 # Parses a tab separated ko matrix file following a species whitelist
 def parse_komat_file(kofilename,mat,whitelist):
     with open(kofilename) as kofile:
-        header = kofile.next().split('\t') # Parsing header column
+        header = kofile.readline().split('\t') # Parsing header column
         for line in kofile:
             data = line.split('\t') # Parsing ko values for a line
             sps = int(data[0])

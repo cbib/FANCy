@@ -1,53 +1,51 @@
 # FANCy: Functional Analysis of fuNgal Communities
 
-## Introduction
+by: Katarzyna B. Hooks, Peter Bock, Marin Fierens, Macha Nikolski
 
-by: Katarzyna B. Hooks, Peter Bock, Laurence Delhaes, David Fitzpatrick, Macha Nikolski, Marin Fierens
+The FANCy pipeline uses ITS1/ITS2 sequencing results and a reference ITS database to predict the fungal species composition in a community, then combines that information with the available functional annotation of the fungal genomes and ancestral state reconstruction to summarise the gene families and pathways present in each sample.
 
-The FANCy pipeline uses ITS1/ITS2 sequencing results and a reference ITS database to predict the fungal species composition in a community, then combines that information with the available functional annotation of the fungal genomes and using ancestral state reconstruction to summarise the gene families and pathways present in each sample.
-
-It then uses R to perform several differential analysis of the pathways, comparing them between sample groups defined by the user, to determine which ones have a significant variance between groups.
+It then uses R to perform differential analysis of the pathways, comparing them between sample groups defined by the user, to determine which ones vary significantly between groups.
 
 This information is summarised in the form of a Pathways Abundance file containing the abundances of the different pathways for each sample, a file containing the statistical results (Pvalue, corrected Pvalue, log corrected values) as well as a PCA graph of the entire dataset and, if significant pathways for the user's chosen Pvalue cut-off were found, a heatmap showing their distribution across samples and values.
 
 
 ## Installation
 
-Example commands for the installation are given for CentOS.
+Example commands for the installation are given for a CentOS VM set up for this purpose.
 
-0. Clone the pipeline onto your local computer/cluster:
+* Clone the pipeline onto your local computer/cluster:
 
 We clone directly from this repo, but you might want to clone from a forked copy on your own github account, in case you want to modify the pipeline later.
 
  ```shell
  yum install git
- 
+
  mkdir pipeline
- 
+
  cd pipeline
- 
+
  git clone https://github.com/cbib/FANCy.git
- 
- 
+
+
  ```
 
 
-1. Update your package installer (Yum for centOS, apt-get for ubuntu...)
+* Update your package installer (Yum for centOS, apt-get for ubuntu...)
 
 ```shell
 yum update
 ```
 
-2. Install Python3, pip3, setuptools and associated libraries.
+* Install Python3, pip3, setuptools and associated libraries.
 
 This was done from source to get the latest versions (built-in repositories for Yum were outdated on CentOS)
 
 ```shell
-sudo yum install yum-utils 
+sudo yum install yum-utils
 
-sudo yum-builddep python 
+sudo yum-builddep python
 
-curl -O https://www.python.org/ftp/python/3.5.0/Python-3.5.0.tgz 
+curl -O https://www.python.org/ftp/python/3.5.0/Python-3.5.0.tgz
 
 tar xf Python-3.5.0.tgz
 
@@ -57,14 +55,12 @@ cd Python-3.5.0
 
 make
 
-sudo make install 
+sudo make install
 
 ```
 
-It might also be necessary to install pip2, if it isn't installed by default, as both pip2 and 3 are needed.
 
-
-3. Install Snakemake from source for the latest version:
+* Install Snakemake from source for the latest version:
 
 jsonschema was a missing dependency for snakemake in our case, examining any error messages thrown during setup will allow you to determine if your system is missing any other dependencies.
 
@@ -78,7 +74,7 @@ pip3 install jsonschema
 python3 setup.py install
 ```
 
-4. Install R, as well as any dependencies our R libraries will need:
+* Install R, as well as any dependencies our R libraries will need:
 
 ```shell
 sudo yum install epel-release
@@ -86,21 +82,17 @@ sudo yum install epel-release
 sudo yum install R
 
 sudo yum install libxml2-devel
+```
+* Install Perl and Perl Core libraries.
 
+```
 yum install perl-Switch
 
 yum install perl-core
 
 ```
 
-5. Install the R libraries that our pipeline needs:
-
-```shell
-Rscript installLibraries.R
-```
-If you  already had an install of R on your machine, you might encounter error messags about other libraries having been compiled for different versions and being incompatible. normally re-installing these R libraries using install.packages() is enough to fix this problem.
-
-6. Install any extra libraries needed by the pipeline:
+* Install any extra libraries needed by the pipeline:
 
 ```shell
 pip2 install pandas
@@ -129,36 +121,82 @@ yum install R-Rcpp
 
 
 
-7. Install the Castor R library using the pre-made script
+* Install the Castor R library using the pre-made script
 
 ```shell
 Rscript scripts/install_castor.r
 ```
 
-8. Install ete2 (python2 version)
+* Install the R libraries that our pipeline needs:
+
+```shell
+Rscript installLibraries.R
+```
+If you  already had an install of R on your machine, you might encounter error messages about other libraries having been compiled for different versions and being incompatible. normally re-installing these R libraries using install.packages() is enough to fix this problem.
+
+* Install ete3
 
 ```shell
 
-pip2 install ete2
+pip3 install ete3
 
 ```
-9. instal Picrust2
 
-This step has an added complexity, as Picrust 2 is still in beta and has a few bugs in their installation script to take care of.
+* Minpath-HMP
 
-first install it's dependencies, Numpy, H5py, joblib and Biom-format (in that order).
+We used Minpath-HMP shipped with Picrust2 to calculate pathways abundances.
 
-Then use the included picrust2 installation script.
+## Using the Pipeline
+
+The pipeline has 2 methods of execution.
+
+### FANCy with BAM files
+
+FANCy can be executed using a zip file containing a collection of bam files:
+
 
 ```shell
-pip3 install numpy h5py joblib
-pip3 install biom-format
-
-python3 picrust2/setup.py install
+FANCy-bam.sh  -z bamZip  -m matchfiles  -l log  -o out -v metadataVector -p pValue -n normMethod -a MetaGrp1 -b MetaGrp2
 ```
-The added complexity comes from Picrust2 not copying over folders, or content of said folders, into it's installation path.
-Depending on where you installed it (here it was installed into the default python3.5 package location) you'll need to adapt the below command slightly:
+
+### FANCy with OTU table and fasta
+
+FANCy can also be executed using a table of OTU sequences and their abundances in each sample, and a FASTA file containing the sequences for each of aforementioned OTU sequences.
 
 ```shell
-cp -r picrust2/picrust2/Rscripts/ /usr/local/lib/python3.5/site-packages/PICRUSt2-2.0.0b3-py3.5.egg/picrust2/Rscripts
+FANCy-otu.sh -t otuTable -s otuSeqs -m matchfiles -l log -o out -v metadataVector -p pValue -n normMethod -a MetaGrp1 -b MetaGrp2
 ```
+
+#### Details:
+
+|    Argument    |                                                                    Explanation                                                                   |
+|:--------------:|:------------------------------------------------------------------------------------------------------------------------------------------------:|
+|     bamZip     |      Zip file containing the BAM files to analyse.  name of zip file will be used as name of the directory that will contain the BAM files.      |
+|    otuTable    |                File containing a comma-separated table of OTU sequences and their abundances in each sample (see example/otuTable)               |
+|     otuSeqs    |                              File containing the Fasta sequences for each OTU in the OTU Table (see example/otuSeqs)                             |
+|   matchfiles   (matchfiles)|                           Directory that will store the Matchfiles (created if non-existent, overwrites existing files)                          |
+|       log      (log)|                              Directory that will store the logs (created if non-existent, overwrites existing files)                             |
+|       out      (out)|                             Directory that will store the output (created if non-existent, overwrites existing files)                            |
+| MetadataVector |          CSV File containing the Metadata vector, with the group each sample belongs to (1 group per sample, see example/metadataVector)         |
+|     pValue  (0.05)    | P Value for the statistical significance testing of the pathways (0.05 is the norm, impacts creation or not of the significant pathways heatmap) |
+|   normMethod   |  Normalization method chosen to adjust for sequencing depth ("tss":Total Sum Scaling, "uqs":Upper Quartile Scaling, or none for any other input) |
+| MetaGrp1       |                                First group of the metadata vector to examine statistical differential expression.                                |
+| MetaGrp2       |                                second group of the metadata vector to examine statistical differential expression.                               |
+
+
+
+##### normalization
+
+The Normalization methods to adjust for sequencing depth employed are:
+
+* Total Sum Scaling
+
+Which adjusts the value of each taxonId using the total sum of all taxonIds, sample by sample.
+
+* Upper Quartile Scaling
+
+Which adjusts the value of each taxonId using the Upper Quartile of all taxonIds in a sample, sample by sample.
+
+* none
+
+Any other argument passed other than "tss" and "uqs" results in no sequencing depth normalization.

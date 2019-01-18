@@ -102,10 +102,10 @@ if len(sys.argv) == 4:
         output_dir = sys.argv[2]
         log_dir = sys.argv[3]
 
-        with open(output_dir + "ko_merged.pickle", "r") as dictFile:
+        with open(output_dir + "ko_merged.pickle", "rb") as dictFile:
              mat = pickle.load(dictFile)
 
-        with open(output_dir + "tps.pickle", "r") as dictFile:
+        with open(output_dir + "tps.pickle", "rb") as dictFile:
              tps = pickle.load(dictFile)
 
 
@@ -144,7 +144,7 @@ if len(sys.argv) == 4:
 
 
 else:
-        print "\n\nError in castor_predict arguments:"
-        print "There should be 2 command line arguments (current_dir, output_dir)"
-        print "Example:"
-        print "python castor_predict.py /current/dir /output/dir"
+        print("\n\nError in castor_predict arguments:")
+        print("There should be 2 command line arguments (current_dir, output_dir)")
+        print("Example:")
+        print("python castor_predict.py /current/dir /output/dir")
