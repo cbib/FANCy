@@ -5,4 +5,4 @@ The default values on our WAVES FANCy service (A and B for the grouping variable
 https://waves.cbib.u-bordeaux.fr/waves/service/fancy/new
   
 The 0.05 pvalue won't generate a heatmap, though, as there aren't any differentially expressed pathways that are significant in our dataset.
-to get an example heatmap too, set the pvalue to 1 (the heatmap in question won't be usable for any conclusions).
+to get an example heatmap too, set the pvalue to 1 (the heatmap in question won't be of any statistical use, though).
