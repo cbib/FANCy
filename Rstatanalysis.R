@@ -25,17 +25,22 @@ loadData = function(fileLocation){
   # remove the file ending from the Sample names ("SAMPLE.sam.match_0.5")
   correctedColsA=sapply(colnames(dataset), function(x){strsplit(x,"[.]")[[1]][1]})
   colnames(dataset) = correctedColsA
+
+  # Remove all pathways with no abundances in any sample.
+  dataset = dataset[!apply(dataset, 1, function(x) all(x==0.00)),]
+
+
   return(dataset)
 }
 
 getMetadataVector = function(metadataFile){
 
   # read in the metadata, containing the conditions for each run we wanr to filter by
-  metadata = read.csv(metadataFile,header = TRUE, sep = ",")
+  metadata = read.csv(metadataFile,header = TRUE, sep = ",", stringsAsFactors=FALSE)
 
   # here's the dataframe variant of the condition table. as we want it.
   # The treeStates char vector is the one we get as input, the colnames being extracted as usual from the results of the pipeline.
-  seqDesign = data.frame(row.names = metadata[,1], condition = metadata[,2])
+  seqDesign = data.frame(row.names = metadata[,1], condition = metadata[,2], stringsAsFactors=FALSE)
 
   return(seqDesign)
 
@@ -63,7 +68,7 @@ pvalCalculator = function(dataset, groupingVector, outputDir,grp1,grp2){
 
     pvals[i,1] = rownames(dataset)[i]
     pvals[i,2] =test$p.value
-    pvals[i,4] = log(mean(A) / mean(B))
+    pvals[i,4] = log((mean(A)) / (mean(B) ))
 
 
   }
@@ -102,7 +107,7 @@ significantPathwaysFinder = function(pvalueDF,dataset,maxPval){
 
 visuHeatmap = function(significantPathways, annotationColDF, pheatmapFile){
   if(nrow(significantPathways) == 0){
-    print("There are no significant differentially expressed pathways (FDR corrected Pval <= 0.05), no heatmap will be generated.")
+    print("There are no significant differentially expressed pathways (FDR corrected pval <= User given p value), no heatmap will be generated.")
   } else{
 
     # trick for log -> add 1 to all DF values to avoid "Inf" results.
@@ -123,7 +128,18 @@ visuHeatmap = function(significantPathways, annotationColDF, pheatmapFile){
 }
 
 pcaPlotter = function(dataset,annotationData,fileName){
-  binded = cbind(t(dataset),annotationData)
+  # order of the dataset's samples and annotationdata samples needs to be the same, 
+  # or their combination assigns the wrong metadata to the wrong samples.
+
+
+  dataset = dataset[, order(colnames(dataset)) ]
+  annotationData = annotationData[order(rownames(annotationData)), ]
+  
+
+
+
+
+  binded = cbind.data.frame(t(dataset),annotationData)
   res.pca = PCA(binded, quali.sup = length(binded), graph= FALSE)
 
   png(fileName,    # create PNG for the heat map
@@ -161,6 +177,6 @@ pvals = pvalsList$pvals
 
 sign_pathways = significantPathwaysFinder(pvals,path_abun,pval)
 
-visuHeatmap(sign_pathways, seqDesign, paste(outputDir,"/pheatmap_",grp1,"-",grp2,".png", sep=""))
+visuHeatmap(sign_pathways, seqDesign, paste(outputDir,"/pheatmap.png", sep=""))
 
 pcaPlotter(path_abun,seqDesign, paste(outputDir,"/PCAind.png", sep=""))

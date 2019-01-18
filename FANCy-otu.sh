@@ -167,4 +167,11 @@ mkdir -p $out/tango
 snakemake -s $snake --config tango="$SCRIPTPATH" cur_dir="$SCRIPTPATH" otuSeq="$otuFasta" otuTable="$otuTable"  output="$out" log="$log" ncbiDB="$taxa" pval="$pval" matchfiles="$match" metadata="$meta" option="$option" uniteDB="$db" GRP1="$grp1" GRP2="$grp2";
 
 
+#mv $out/pheatmap* $out/pheatmap.png
+mv $out/pvals* $out/pvals.csv
+
+sed -i '1iPathway_names' $out/pathwayAbundances.csv
+sed -i 's/function/Taxon_ID/g' $log/species_by_sample.tsv
+
+
 # 

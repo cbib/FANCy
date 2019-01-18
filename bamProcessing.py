@@ -1,4 +1,4 @@
-
+import os
 import sys
 import glob
 import re
@@ -23,7 +23,7 @@ def checkIntegrity(filePath):
 
 
 def readSam(samFile, matchDict):
-        copyDict = copy.deepcopy(matchDict) # shallow copying is a nightmare for nested dicts XO
+        copyDict = copy.deepcopy(matchDict) # shallow copying is a nightmare XO
         print("sam -> match for {}".format(samFile))
         with open(samFile,"r") as data:
                 for line in data.readlines():
@@ -71,7 +71,7 @@ def bamtosam(bam):
 def bamProcessing(bamDir,matchDir):
         ## if BAM, then do the BAM steps using the commandline arguments Directory,
         # being a directory containing the bam files.
-        # create the sam file for the current bam, then process it as usual. (see writeMatch function)
+	# create the sam file for the current bam, then process it as usual. (see writeMatch function)
         for bam in glob.glob(bamDir + "/*.bam"):
             sam = bamtosam(bam)
             match = readSam(sam, {})
@@ -83,13 +83,22 @@ def bamProcessing(bamDir,matchDir):
 ##################Main############################
 
 # if script called with 3 arguments (script, BAMdir and matchDir) then apply the BAM processing path
-if len(sys.argv) == 3:
+if len(sys.argv) == 4:
         bamdir = sys.argv[1]
         matchdir = sys.argv[2]
+        allowed=int(sys.argv[3])
+        
         bamProcessing(bamdir, matchdir)
+        
+        # count number of files that were in the ZIP. Our pipeline is limited to a total of 30 copies
+        onlyfiles = next(os.walk(bamdir))[2] #dir is your directory path as string
+        
+        if len(onlyfiles) > allowed:
+            print("The total number of Sample files exceeds the allowed number for our web interface (" + str(allowed) + "),\neither cut down on the number of sample files (entries in you BAM zip file) or install the local version of this pipeline:\n\t https://github.com/cbib/FANCy\n")
+            sys.exit(1)
 
 else:
         print("\n\nError in bamProcessing.py arguments:")
-        print("There should be 2 command line arguments (the bamfiles directory and the output match directory)")
+        print("There should be 3 command line arguments (the bamfiles directory and the output match directory, as well as the total allowed number of samples)")
         print("Example:")
-        print("python bamProcessing.py /path/to/BAMfile/dir /path/for/output/matchfiles")
+        print("python bamProcessing.py /path/to/BAMfile/dir /path/for/output/matchfiles allowed-sample-num")

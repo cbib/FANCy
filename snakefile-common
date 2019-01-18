@@ -34,7 +34,7 @@ TANGO = config["tango"]
 GRP1 = config["GRP1"]
 
 GRP2 = config ["GRP2"]
-# extract the filenames from the path and file extensions. (path by "/", extensions by ".")
+# extract the filenames from the path and file extensions. (path by "/, extensions by ".")
 
 fileNames = [".".join(file.split("/")[-1].split(".")[0:-2]) for file in glob.glob(INPUT + "*.sam.match")]
 

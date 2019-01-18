@@ -68,8 +68,8 @@ def build_tree(ncbi,ids):
 # Log the taxa information in files in the log directory
 
 def log_taxa(log_dir,this_path,ids,sps,nodes,tps):
-    if not path.isdir(this_path + '/' + log_dir):
-        makedirs(this_path + '/' + log_dir)
+    if not path.isdir(log_dir):
+        makedirs(log_dir)
     write_list(log_dir + '/species.txt',sps)
     write_list(log_dir + '/ids.txt', ids)
     write_list(log_dir + '/nodes.txt',nodes)
@@ -103,10 +103,30 @@ if len(sys.argv) == 5:
         with open(OUTPUT_DIR + "/tps.pickle", "wb+") as dictFile:
             pickle.dump(tps,dictFile)
 
+	# Add Lineage-compliant species file:
+
+        with open(LOG_DIR + "/weights_by_sample.tsv","r") as oldfile:
+            with open(LOG_DIR + "/species_by_sample.tsv","w+") as newfile:
+                header = "Taxon_Name\t" + str(oldfile.readline())
+                newfile.write(header)
+                for line in oldfile:
+                    contents = line.split()
+                    ID = int(contents[0])
+        
+                    lineageIDs = ncbi.get_lineage(ID)
+                    names = ncbi.translate_to_names(lineageIDs)
+                    if "Fungi" in names:
+                        FungiLineage = names[names.index("Fungi"):]
+                        lineage = ";".join(FungiLineage)
+                    else:
+                        lineage = print(";".join(names))
+
+                    newfile.write(lineage + "\t" + line)
+
 
 
 else:
         print("\n\nError in process_tango.py arguments:")
-        print("There should be 2 command line arguments (/path/to/log/dir)")
+        print("There should be 4 command line arguments (path/to/main/dir /path/to/log/dir path/to/output/dir /path/to/sqlite/ncbi/db)")
         print("Example:")
-        print("python check_db_age.py /path/to/pipeline/main/folder")
+        print("python process_tango.py /piepeline log/ out/ ncbiDB/sqlite.taxa")

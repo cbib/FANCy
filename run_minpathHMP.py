@@ -45,7 +45,7 @@ if len(sys.argv) == 3:
 
 
 else:
-        print("\n\nError in castor_predict arguments:")
+        print("\n\nError in MinPath Prediction arguments:")
         print("There should be 2 command line arguments (current_dir, output_dir)")
         print("Example:")
-        print("python castor_predict.py /current/dir /output/dir")
+        print("python run_MinPathHMP.py /current/dir /output/dir")
