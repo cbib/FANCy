@@ -157,9 +157,9 @@ mkdir -p $out/tango
 
 
 
-# For the web interface, the total number of allowed samples:
-
-allowed=30
+# For the local version, the total number of allowed samples:
+# change this if you need more samples (though this Local limit should be largely sufficient)
+allowed=300
 
 
 
