@@ -9,6 +9,9 @@ import pickle
 # total sum of each sample)
 # 3. Normalize by UQS (Upper Quartile Scaling, AKA., by scaling according to
 # the upper quartile of each sample)
+# 4. Normalize by ESD (Even Sequencding Depth, AKA., normalize by TSS then multiply by 100 000 to correct 
+# MinPath sensitivity to fractional values < 1
+
 
 def upperQuartile(nums):
 
@@ -37,6 +40,17 @@ def tss(dico):
             dico[key] = dico[key] / float(ts)
     return(dico)
 
+def esd(dico):
+    multiplier = 100000
+    print("Even Sequencing Depth method multiplies the normalized value by 100 000.")
+    #apply Total Sum Scaling + a multiplier to even the sequencing depth:
+    ts = sum(dico.values())
+    for key in dico.keys():
+        if dico[key] != 0:
+            dico[key] = (float(dico[key]) / float(ts)) * multiplier
+    return(dico)
+
+
 
 def uqs(dico):
     # apply Upper Quartile Scaling to a dataset
@@ -52,6 +66,13 @@ def datasetTSS(dataset):
     for sample in dataset:
         dataset[sample] = tss(dataset[sample])
     return(dataset)
+
+def datasetESD(dataset):
+    #apply Even Sequencing Depth to every sample in a dataset
+    for sample in dataset:
+        dataset[sample] = esd(dataset[sample])
+    return(dataset)
+
 
 def datasetUQS(dataset):
     #apply UQS to every sample in a dataset
@@ -83,6 +104,16 @@ if len(sys.argv) == 3:
             tps = datasetUQS(tps)
             with open(output_dir + "tps.pickle", "wb") as dictFile:
                 pickle.dump(tps,dictFile)
+        
+        elif option == "esd":
+            with open(output_dir + "tps.pickle", "rb") as dictFile:
+                tps = pickle.load(dictFile)
+            tps = datasetESD(tps)
+            with open(output_dir + "tps.pickle", "wb") as dictFile:
+                pickle.dump(tps,dictFile)
+
+
+        
         else:
             pass
 
