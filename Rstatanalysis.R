@@ -173,7 +173,7 @@ args = commandArgs(trailingOnly=TRUE)
 dataset = args[[1]]
 metadata = args[[2]]
 outputDir = args[[3]]
-pval = args[[4]]
+pval = as.double(args[[4]])
 grp1 = args[[5]]
 grp2 = args[[6]]
 
