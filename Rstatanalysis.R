@@ -79,13 +79,17 @@ pvalCalculator = function(dataset, groupingVector, outputDir,grp1,grp2){
   }
 
   ## Adjusted P values addition
+  
+  pvals = pvals[ grep("NaN", pvals[,2], invert=TRUE),]
 
+  
+  
   pvalList = sapply(pvals[,2], as.numeric)
 
   pvalAdjustedList = p.adjust(pvalList,method="fdr")
 
   padjusted = t(pvalAdjustedList)
-  for (i in 1:nrow(dataset)){
+  for (i in 1:nrow(pvals)){
     pvals[i,3] = padjusted[i]
   }
   write.csv(pvals, paste(outputDir, "/pvals_", grp1,"-",grp2,".csv", sep=""))
@@ -182,6 +186,6 @@ pvals = pvalsList$pvals
 
 sign_pathways = significantPathwaysFinder(pvals,path_abun,pval)
 
-visuHeatmap(sign_pathways, seqDesign, paste(outputDir,"/pheatmap.png", sep=""))
+visuHeatmap(sign_pathways, seqDesign, paste(outputDir,"/heatmap.png", sep=""))
 
 pcaPlotter(path_abun,seqDesign, paste(outputDir,"/PCAind.png", sep=""))
