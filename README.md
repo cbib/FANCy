@@ -206,4 +206,4 @@ Which adjusts the value of each taxonId using the Upper Quartile of all taxonIds
 
 * none
 
-Any other argument passed other than "tss", "uqs" or "eds" results in no sequencing depth normalization.
+Any other argument passed other than "tss", "uqs" or "esd" results in no sequencing depth normalization.
