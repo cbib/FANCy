@@ -18,7 +18,7 @@ fi
 # testing that the obligatory parameters are indeed present:                                                       
 # first set all non-optional argument values to False, with the optional arguments having their default values.    
 # After the getopts processing we can then test if any of the parameters are still set to False, and print the correct error message is so.       
-# normalization -> "tss" for Total Sum Scaling, "uqs" for Upper Quartile Scaling, any other value for no scaling.                                                                                                                        
+# normalization -> "tss" for Total Sum Scaling,,"esd" for Even Sequencing Depth scaling,  "uqs" for Upper Quartile Scaling, any other value for no scaling.                                                                                                                        
 
 bamzip=false;
 match="matchfiles";
@@ -29,11 +29,11 @@ pval=0.05;
 option=false;
 grp1=false;
 grp2=false;
-
+allowed=false;
 
 #process cmdline arguments                                                                                        
 
-while getopts 'z:m:l:o:v:p:n:a:b:' c
+while getopts 'z:m:l:o:v:p:n:a:b:d:' c
 do
     case $c in
         z) bamzip=$OPTARG;;
@@ -45,6 +45,7 @@ do
         n) option=$OPTARG;;
         a) grp1=$OPTARG;;
         b) grp2=$OPTARG;;
+        d) allowed=$OPTARG;;
         \?) echo "invalid option: -$c $OPTARG" >&2; exit 1;;
     esac
 done
@@ -102,24 +103,27 @@ fi
 if [ "$(echo $pval '>' 1.00 | bc -l)" -eq 1   -o "$(echo $pval '<' 0.00 | bc -l)" -eq 1   ];
 
 then
-    echo "Error: Invalid P value. must be between 1 and 0 !"
+    echo "Error: Invalid p value. must be between 1.00 and 0.00 !"
     exit 1;
 fi
 
-if ! grep -Fwq "$grp1" "$meta" 
+if ! grep -wzq "$grp1" "$meta" 
 then
     echo "The given GRP1 grouping variable ( $grp1 ) doesn't exist in the metadata vector file $meta"
     exit 1;
 
 fi
 
-if ! grep -Fwq "$grp2" "$meta" 
+if ! grep -wzq "$grp2" "$meta" 
 then
     echo "The given GRP2 grouping variable ( $grp2 ) doesn't exist in the metadata vector file $meta"
     exit 1;
 fi
 
-
+if [ "$allowed" = false ];
+then
+    allowed=30;
+fi
 
 
 # Condition A and B MUST be the exact values desired, as written in the metadataVector File.
@@ -157,9 +161,9 @@ mkdir -p $out/tango
 
 
 
-# For the local version, the total number of allowed samples:
-# change this if you need more samples (though this Local limit should be largely sufficient)
-allowed=300
+# For the web interface, the total number of allowed samples:
+
+#allowed=30
 
 
 
@@ -177,6 +181,8 @@ snakemake -s $snake --config tango="$SCRIPTPATH" cur_dir="$SCRIPTPATH" bamdir="$
 #mv $out/pheatmap* $out/pheatmap.png
 mv $out/pvals* $out/pvals.csv
 
-sed -i '1iPathway_names' $out/pathwayAbundances.csv
+sed -i '1s/""/"Pathway_names"/' $out/pathwayAbundances.csv
 sed -i 's/function/Taxon_ID/g' $log/species_by_sample.tsv
+sed -i 's/function/KO_ID/g' output/KO_by_sample_normalized.tsv
+
 # 

@@ -35,8 +35,9 @@ loadData = function(fileLocation){
 
 saveData = function(fileLocation,dataset){
   write.csv(dataset,fileLocation)
-  
 }
+
+
 
 getMetadataVector = function(metadataFile){
 
@@ -79,11 +80,8 @@ pvalCalculator = function(dataset, groupingVector, outputDir,grp1,grp2){
   }
 
   ## Adjusted P values addition
-  
   pvals = pvals[ grep("NaN", pvals[,2], invert=TRUE),]
 
-  
-  
   pvalList = sapply(pvals[,2], as.numeric)
 
   pvalAdjustedList = p.adjust(pvalList,method="fdr")
@@ -92,7 +90,7 @@ pvalCalculator = function(dataset, groupingVector, outputDir,grp1,grp2){
   for (i in 1:nrow(pvals)){
     pvals[i,3] = padjusted[i]
   }
-  write.csv(pvals, paste(outputDir, "/pvals_", grp1,"-",grp2,".csv", sep=""))
+  write.csv(pvals, paste(outputDir, "/pvals_", grp1,"-",grp2,".csv", sep="", row.names=FALSE))
 
   return(list("pvals" = pvals, "grp1" = grp1, "grp2" = grp2))
 }
@@ -101,15 +99,11 @@ significantPathwaysFinder = function(pvalueDF,dataset,maxPval){
 
   # get pathway names
 
-
-  significant_pathways_correctedP_rows = pvalueDF[pvalueDF[,3] <= maxPval,1]
-
-
+  significant_pathways_correctedP_rows = pvalueDF[as.double(pvalueDF[,2]) <= maxPval,1]
+  
   sign_pathways_corr =dataset[significant_pathways_correctedP_rows,]
 
   colnames(sign_pathways_corr) = sapply(colnames(sign_pathways_corr),function(x) {strsplit(x,"[.]")[[1]][1]})
-
-
 
   return(sign_pathways_corr)
 }
@@ -157,7 +151,7 @@ pcaPlotter = function(dataset,annotationData,fileName){
       res = 300,            # 300 pixels per inch
       pointsize = 8);        # smaller font size
 
-  plot.PCA(res.pca, label="none", choix="ind", habillage=length(binded));
+  plot.PCA(res.pca, label="none", choix="ind",title="", habillage=length(binded));
 
   invisible(dev.off());
 
@@ -188,4 +182,6 @@ sign_pathways = significantPathwaysFinder(pvals,path_abun,pval)
 
 visuHeatmap(sign_pathways, seqDesign, paste(outputDir,"/heatmap.png", sep=""))
 
-pcaPlotter(path_abun,seqDesign, paste(outputDir,"/PCAind.png", sep=""))
+pcaPlotter(path_abun,seqDesign, paste(outputDir,"/PCA.png", sep=""))
+
+saveData(dataset,path_abun)

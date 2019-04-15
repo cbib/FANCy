@@ -73,6 +73,7 @@ def log_taxa(log_dir,this_path,ids,sps,nodes,tps):
     write_list(log_dir + '/species.txt',sps)
     write_list(log_dir + '/ids.txt', ids)
     write_list(log_dir + '/nodes.txt',nodes)
+    
     write_doubledict(log_dir + '/weights_by_sample.tsv',tps)
 
 
@@ -107,7 +108,11 @@ if len(sys.argv) == 5:
 
         with open(LOG_DIR + "/weights_by_sample.tsv","r") as oldfile:
             with open(LOG_DIR + "/species_by_sample.tsv","w+") as newfile:
-                header = "Taxon_Name\t" + str(oldfile.readline())
+                oldHeader = str(oldfile.readline()).split("\t")
+                oldHeader = "\t".join([id.split(".")[0] for id in oldHeader])
+
+
+                header = "Taxon_Name\t" + str(oldHeader)
                 newfile.write(header)
                 for line in oldfile:
                     contents = line.split()

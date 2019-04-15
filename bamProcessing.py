@@ -46,6 +46,8 @@ def readSam(samFile, matchDict):
 def writeMatch(sam, link, repeats = {}):
         if(".sam.sam" in sam):
                 sam = sam.replace(".sam.sam",".sam")
+        if not os.path.isdir('matchfiles'):
+                os.mkdir('matchfiles')
         with open(sam + ".match", "w+") as matchFile:
 
                 for key1 in link.keys():

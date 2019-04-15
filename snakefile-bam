@@ -18,7 +18,7 @@ fileNames = [".".join(file.split("/")[-1].split(".")[0:-1]) for file in glob.glo
 
 rule all:
   input:
-    expand(INPUT + "{files}.match", files=fileNames),
+    #expand(INPUT + "{files}.match", files=fileNames),
     LOG + "db_done",
     LOG + "bam_done",
     LOG + "tango_run_done",
@@ -37,7 +37,7 @@ rule bamProcessing:
         expand(bamDir + "/{files}.bam", files=fileNames)
     output:
         LOG + "input_present",
-        expand(INPUT + "{files}.match", files=fileNames),
+        #expand(INPUT + "{files}.match", files=fileNames),
         LOG + "bam_done"
     shell:
         "python3 {DIRECTORY}bamProcessing.py {bamDir} {INPUT} {allowedNum};touch {LOG}bam_done;touch {LOG}input_present"

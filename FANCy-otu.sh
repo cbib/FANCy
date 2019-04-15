@@ -32,7 +32,7 @@ grp2=false;
 
 # process cmdline arguments
 
-while getopts 't:s:m:l:o:v:p:n:a:b:' c     
+while getopts 't:s:m:l:o:v:p:n:a:b:d:' c     
 do
     case $c in
 	t) otuTable=$OPTARG;;
@@ -45,6 +45,7 @@ do
 	n) option=$OPTARG;;
 	a) grp1=$OPTARG;;
 	b) grp2=$OPTARG;;
+	d) allowed=30;;
 	\?) echo "invalid option: -$OPTARG" >&2; exit 1;; 
     esac
 done
@@ -94,7 +95,7 @@ fi
 
 if [ "$option" = false ];
 then
-    echo "The normalization parameter is missing, please retry with the correct option ('tss','uqs' or 'none') included:"
+    echo "The normalization parameter is missing, please retry with the correct option ('tss','uqs', 'eds' or 'none') included:"
     echo "-n normalizationOption"
 fi
 

@@ -23,7 +23,7 @@ OPTION = config["option"]
 
 METADATA_LOC = config["metadata"]
 
-PVAL = int(config["pval"])
+PVAL = float(config["pval"])
 
 SQLITE_DB = config["ncbiDB"]
 
@@ -115,7 +115,7 @@ rule Ranalysis:
     LOG + "normalize_done",
     LOG + "minpath_done"
   output:
-    OUTPUT + "PCAind.png",
+    OUTPUT + "PCA.png",
     LOG + "analysis_done"
   shell:
     "Rscript {DIRECTORY}Rstatanalysis.R {OUTPUT}pathwayAbundances.csv {METADATA_LOC} {OUTPUT} {PVAL} {GRP1} {GRP2};touch {LOG}analysis_done"
