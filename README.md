@@ -186,7 +186,7 @@ FANCy-otu.sh otuTable otuSeqs matchfiles log out metadataVector pValue normMetho
 |       out      |                             Directory that will store the output (created if non-existent, overwrites existing files)                            |
 | MetadataVector |          CSV File containing the Metadata vector, with the group each sample belongs to (1 group per sample, see example/metadataVector)         |
 |     pValue     | P Value for the statistical significance testing of the pathways (0.05 is the norm, impacts creation or not of the significant pathways heatmap) |
-|   normMethod   |  Normalization method chosen to adjust for sequencing depth ("tss":Total Sum Scaling, "uqs":Upper Quartile Scaling, or none for any other input) |
+|   normMethod   |  Normalization method chosen to adjust for sequencing depth ("tss":Total Sum Scaling, "uqs":Upper Quartile Scaling, or "esd":Even Sequencing depth) |
 | MetaGrp1       |                                First group of the metadata vector to examine statistical differential expression.                                |
 | MetaGrp2       |                                second group of the metadata vector to examine statistical differential expression.                               |
 
@@ -206,4 +206,4 @@ Which adjusts the value of each taxonId using the Upper Quartile of all taxonIds
 
 * none
 
-Any other argument passed other than "tss" and "uqs" results in no sequencing depth normalization.
+Any other argument passed other than "tss", "uqs" or "eds" results in no sequencing depth normalization.
