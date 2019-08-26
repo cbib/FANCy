@@ -17,13 +17,13 @@ options(bitmapType='cairo')
 
 loadData = function(fileLocation){
 
-  dataset = read.csv(fileLocation)
+  dataset = read.csv(fileLocation, check.names=FALSE)
 
   rownames(dataset) <- dataset$X
   dataset = subset(dataset, select = -X)
 
   # remove the file ending from the Sample names ("SAMPLE.sam.match_0.5")
-  correctedColsA=sapply(colnames(dataset), function(x){strsplit(x,"".sam.match_0.5"")[[1]][1]})
+  correctedColsA=sapply(colnames(dataset), function(x){strsplit(x,"[.]")[[1]][1]})
   colnames(dataset) = correctedColsA
 
   # Remove all pathways with no abundances in any sample.
