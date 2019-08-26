@@ -17,10 +17,10 @@ options(bitmapType='cairo')
 
 loadData = function(fileLocation){
 
-  dataset = read.csv(fileLocation, check.names=FALSE)
+  dataset = read.csv(fileLocation, row.names=1, check.names=FALSE)
 
-  rownames(dataset) <- dataset$X
-  dataset = subset(dataset, select = -X)
+  #rownames(dataset) <- dataset$X
+  #dataset = subset(dataset, select = -X)
 
   # remove the file ending from the Sample names ("SAMPLE.sam.match_0.5")
   correctedColsA=sapply(colnames(dataset), function(x){strsplit(x,"[.]")[[1]][1]})
