@@ -23,7 +23,7 @@ loadData = function(fileLocation){
   dataset = subset(dataset, select = -X)
 
   # remove the file ending from the Sample names ("SAMPLE.sam.match_0.5")
-  correctedColsA=sapply(colnames(dataset), function(x){strsplit(x,"[.]")[[1]][1]})
+  correctedColsA=sapply(colnames(dataset), function(x){strsplit(x,"".sam.match_0.5"")[[1]][1]})
   colnames(dataset) = correctedColsA
 
   # Remove all pathways with no abundances in any sample.
